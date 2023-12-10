@@ -2,7 +2,21 @@
 name = "size"
 version = "0.1.0"
 edition = "2021"
+license = "Apache-2.0"
+authors = ["Chris Simpkins <chris@sourcefoundry.org>"]
+description = """
+TODO
+"""
+documentation = "https://github.com/chrissimpkins/size"
+homepage = "https://github.com/chrissimpkins/size"
+repository = "https://github.com/chrissimpkins/size"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+bench = false
+path = "src/main.rs"
+name = "siz"
 
 [dependencies]
+anyhow = "1.0.75"
+clap = "4.4"
+walkdir = "2.4"

@@ -1,6 +1,12 @@
-use std::{io::Write, path::Path, path::PathBuf, process::ExitCode};
+use std::{
+    io::Write,
+    path::Path,
+    path::{PathBuf, MAIN_SEPARATOR_STR},
+    process::ExitCode,
+};
 
 use clap::Parser;
+use colored::*;
 use humansize::{make_format, BINARY, DECIMAL};
 use ignore::WalkBuilder;
 use rayon::prelude::*;
@@ -33,6 +39,10 @@ struct Args {
     /// Size in human readable binary units (powers of 1024)
     #[arg(short, long, default_value_t = false, conflicts_with = "metric_units")]
     binary_units: bool,
+
+    /// ANSI colored output
+    #[arg(short, long, default_value_t = false)]
+    color: bool,
 
     /// Show hidden dot files and dot directories
     // Note: the logic here is reverse that used in the directory
@@ -83,11 +93,21 @@ fn run() -> anyhow::Result<ExitCode> {
     let mut binding = WalkBuilder::new(&args.path);
     let walker_builder = binding.hidden(!args.hidden).skip_stdout(true);
 
+    // instantiate the human readable size formatters (humansize lib)
+    let metric_size_formatter = make_format(DECIMAL);
+    let binary_size_formatter = make_format(BINARY);
+
     if args.parallel {
         walker_builder.build_parallel().run(|| {
             Box::new(|entry| match entry {
                 Ok(entry) => match entry.metadata() {
-                    Ok(metadata) => match print_file(&args, &metadata.len(), entry.path()) {
+                    Ok(metadata) => match format_print_file(
+                        &args,
+                        &metadata.len(),
+                        entry.path(),
+                        &metric_size_formatter,
+                        &binary_size_formatter,
+                    ) {
                         Ok(_) => ignore::WalkState::Continue,
                         Err(err) => {
                             let mut walk_state = ignore::WalkState::Quit;
@@ -125,7 +145,13 @@ fn run() -> anyhow::Result<ExitCode> {
 
         for entry in dir_walker {
             let path_entry = entry?;
-            print_file(&args, &path_entry.metadata()?.len(), &path_entry.path())?;
+            format_print_file(
+                &args,
+                &path_entry.metadata()?.len(),
+                path_entry.path(),
+                &metric_size_formatter,
+                &binary_size_formatter,
+            )?;
         }
     } else {
         let mut v: Vec<(u64, PathBuf)> = Vec::with_capacity(250);
@@ -152,37 +178,75 @@ fn run() -> anyhow::Result<ExitCode> {
 
         // Print the report to stdout
         for (filesize, filepath) in v.iter() {
-            print_file(&args, filesize, filepath)?;
+            format_print_file(
+                &args,
+                filesize,
+                filepath,
+                &metric_size_formatter,
+                &binary_size_formatter,
+            )?;
         }
     }
-
     // return zero exit status code if we did not encounter an error
     Ok(ExitCode::from(0))
 }
 
-fn print_file(args: &Args, filesize: &u64, filepath: &Path) -> Result<(), std::io::Error> {
+fn format_print_file(
+    args: &Args,
+    filesize: &u64,
+    filepath: &Path,
+    metric_size_formatter: impl Fn(u64) -> String,
+    binary_size_formatter: impl Fn(u64) -> String,
+) -> Result<(), std::io::Error> {
     if filepath.is_file() {
-        // instantiate the human readable size formatters (humansize lib)
-        let metric_size_formatter = make_format(DECIMAL);
-        let binary_size_formatter = make_format(BINARY);
+        if args.color {
+            let fmt_filepath = match filepath.parent() {
+                Some(ppath) => match filepath.file_name() {
+                    Some(fpath) => {
+                        format!(
+                            "{}{}{}",
+                            ppath.to_string_lossy().blue(),
+                            MAIN_SEPARATOR_STR.blue(),
+                            fpath.to_string_lossy()
+                        )
+                    }
+                    None => format!("{}", ppath.to_string_lossy().blue()),
+                },
+                None => String::from(""),
+            };
 
-        if args.metric_units {
-            writeln!(
-                std::io::stdout(),
-                "{:>9}\t{}",
-                metric_size_formatter(*filesize),
-                filepath.display()
+            let fmt_filesize: String;
+            if args.metric_units {
+                fmt_filesize = format!("{:>9}", metric_size_formatter(*filesize));
+                write_stdout(&fmt_filesize, &fmt_filepath)?;
+            } else if args.binary_units {
+                fmt_filesize = format!("{:>10}", binary_size_formatter(*filesize));
+                write_stdout(&fmt_filesize, &fmt_filepath)?;
+            } else {
+                write_stdout(filesize, &fmt_filepath)?;
+            }
+        } else if args.metric_units {
+            write_stdout(
+                format!("{:>9}", metric_size_formatter(*filesize)),
+                filepath.display(),
             )?;
         } else if args.binary_units {
-            writeln!(
-                std::io::stdout(),
-                "{:>10}\t{}",
-                binary_size_formatter(*filesize),
-                filepath.display()
+            write_stdout(
+                format!("{:>10}", binary_size_formatter(*filesize)),
+                filepath.display(),
             )?;
         } else {
-            writeln!(std::io::stdout(), "{}\t{}", filesize, filepath.display())?;
+            write_stdout(filesize, filepath.display())?;
         }
     }
+    Ok(())
+}
+
+fn write_stdout<T, U>(filesize: T, filepath: U) -> Result<(), std::io::Error>
+where
+    T: std::fmt::Display,
+    U: std::fmt::Display,
+{
+    writeln!(std::io::stdout(), "{}\t{}", filesize, filepath)?;
     Ok(())
 }

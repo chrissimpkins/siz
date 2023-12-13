@@ -19,6 +19,7 @@ name = "siz"
 [dependencies]
 anyhow = "1.0.75"
 clap = { version = "4.4", features = ["derive"] }
+colored = "2.1"
 humansize = "2.0"
 ignore = "0.4"
 rayon = "1.8"

@@ -1,3 +1,4 @@
+// standard library
 use std::{
     io::Write,
     path::Path,
@@ -5,12 +6,17 @@ use std::{
     process::ExitCode,
 };
 
+// external libraries
 use clap::Parser;
 use colored::*;
 use humansize::{make_format, BINARY, DECIMAL};
 use ignore::WalkBuilder;
 use rayon::prelude::*;
 
+// size library
+use size::args::Args;
+
+// main entry point for the siz executable
 fn main() -> ExitCode {
     match run() {
         Ok(code) => code,
@@ -26,64 +32,6 @@ fn main() -> ExitCode {
             ExitCode::from(1)
         }
     }
-}
-
-/// Command line options
-#[derive(Parser, Debug)]
-#[command(name = "siz")]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// File or directory path
-    path: PathBuf,
-
-    /// Size in human readable binary units (powers of 1024)
-    #[arg(short, long, default_value_t = false, conflicts_with = "metric_units")]
-    binary_units: bool,
-
-    /// ANSI colored output
-    #[arg(short, long, default_value_t = false)]
-    color: bool,
-
-    /// Show hidden dot files and dot directories
-    // Note: the logic here is reverse that used in the directory
-    // walker builder.  So, we'll not this boolean value in the
-    // builder instantiation block below.
-    #[arg(short = 'd', long, default_value_t = false)]
-    hidden: bool,
-
-    /// Sort by largest to smallest file size
-    #[arg(
-        short = 'l',
-        long,
-        default_value_t = false,
-        conflicts_with = "parallel",
-        conflicts_with = "name"
-    )]
-    highlow: bool,
-
-    /// Size in human readable SI metric units (powers of 1000)
-    #[arg(short, long, default_value_t = false, conflicts_with = "binary_units")]
-    metric_units: bool,
-
-    /// Sort by filepath name
-    #[arg(
-        short,
-        long,
-        default_value_t = false,
-        conflicts_with = "highlow",
-        conflicts_with = "parallel"
-    )]
-    name: bool,
-
-    /// Non-deterministic parallel recursive directory walk
-    #[arg(
-        short,
-        long,
-        default_value_t = false,
-        conflicts_with = "highlow",
-        conflicts_with = "name"
-    )]
-    parallel: bool,
 }
 
 fn run() -> anyhow::Result<ExitCode> {
@@ -198,6 +146,7 @@ fn format_print_file(
     metric_size_formatter: impl Fn(u64) -> String,
     binary_size_formatter: impl Fn(u64) -> String,
 ) -> Result<(), std::io::Error> {
+    // exclude directories, filter on files only
     if filepath.is_file() {
         if args.color {
             let fmt_filepath = match filepath.parent() {

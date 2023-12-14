@@ -12,9 +12,12 @@ homepage = "https://github.com/chrissimpkins/size"
 repository = "https://github.com/chrissimpkins/size"
 
 [[bin]]
-bench = false
-path = "src/main.rs"
 name = "siz"
+path = "src/main.rs"
+
+[lib]
+name = "size"
+path = "src/lib/lib.rs"
 
 [dependencies]
 anyhow = "1.0.75"

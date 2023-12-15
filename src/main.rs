@@ -1,6 +1,5 @@
 // standard library
 use std::{
-    io::Write,
     path::Path,
     path::{PathBuf, MAIN_SEPARATOR_STR},
     process::ExitCode,
@@ -15,6 +14,7 @@ use rayon::prelude::*;
 
 // size library
 use size::args::Args;
+use size::stdstreams::write_stdout;
 
 // main entry point for the siz executable
 fn main() -> ExitCode {
@@ -188,14 +188,5 @@ fn format_print_file(
             write_stdout(filesize, filepath.display())?;
         }
     }
-    Ok(())
-}
-
-fn write_stdout<T, U>(filesize: T, filepath: U) -> Result<(), std::io::Error>
-where
-    T: std::fmt::Display,
-    U: std::fmt::Display,
-{
-    writeln!(std::io::stdout(), "{}\t{}", filesize, filepath)?;
     Ok(())
 }

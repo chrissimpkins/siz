@@ -34,3 +34,18 @@ impl Iterator for Walker {
         }
     }
 }
+
+pub struct ParallelWalker {
+    pub walker: ignore::WalkParallel,
+}
+
+impl ParallelWalker {
+    pub fn new(args: &Args) -> Self {
+        let mut binding = WalkBuilder::new(&args.path);
+        let walker = binding.hidden(!args.hidden).skip_stdout(true);
+
+        Self {
+            walker: walker.build_parallel(),
+        }
+    }
+}

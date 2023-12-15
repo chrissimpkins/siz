@@ -10,14 +10,13 @@ use anyhow::Result;
 use clap::Parser;
 use colored::*;
 
-use ignore::WalkBuilder;
 use rayon::prelude::*;
 
 // size library
 use size::args::Args;
 use size::format::{build_binary_size_formatter, build_metric_size_formatter};
 use size::stdstreams::write_stdout;
-use size::walk::Walker;
+use size::walk::{ParallelWalker, Walker};
 
 // main entry point for the siz executable
 fn main() -> ExitCode {
@@ -40,16 +39,12 @@ fn main() -> ExitCode {
 fn run() -> Result<ExitCode> {
     let args = Args::parse();
 
-    // configure the directory walker (ignore::WalkerBuilder)
-    let mut binding = WalkBuilder::new(&args.path);
-    let walker_builder = binding.hidden(!args.hidden).skip_stdout(true);
-
     // instantiate the human readable size formatters (humansize lib)
     let metric_size_formatter = build_metric_size_formatter();
     let binary_size_formatter = build_binary_size_formatter();
 
     if args.parallel {
-        walker_builder.build_parallel().run(|| {
+        ParallelWalker::new(&args).walker.run(|| {
             Box::new(|entry| match entry {
                 Ok(entry) => match entry.metadata() {
                     Ok(metadata) => match format_print_file(

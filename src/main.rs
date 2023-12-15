@@ -8,12 +8,13 @@ use std::{
 // external libraries
 use clap::Parser;
 use colored::*;
-use humansize::{make_format, BINARY, DECIMAL};
+
 use ignore::WalkBuilder;
 use rayon::prelude::*;
 
 // size library
 use size::args::Args;
+use size::format::{build_binary_size_formatter, build_metric_size_formatter};
 use size::stdstreams::write_stdout;
 
 // main entry point for the siz executable
@@ -42,8 +43,8 @@ fn run() -> anyhow::Result<ExitCode> {
     let walker_builder = binding.hidden(!args.hidden).skip_stdout(true);
 
     // instantiate the human readable size formatters (humansize lib)
-    let metric_size_formatter = make_format(DECIMAL);
-    let binary_size_formatter = make_format(BINARY);
+    let metric_size_formatter = build_metric_size_formatter();
+    let binary_size_formatter = build_binary_size_formatter();
 
     if args.parallel {
         walker_builder.build_parallel().run(|| {

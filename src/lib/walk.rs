@@ -26,6 +26,7 @@ impl Walker {
 impl Iterator for Walker {
     type Item = Result<ignore::DirEntry>;
 
+    #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         match self.walker.next() {
             Some(Ok(entry)) => Some(Ok(entry)),

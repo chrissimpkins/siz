@@ -6,6 +6,7 @@ use std::{
 };
 
 // external libraries
+use anyhow::Result;
 use clap::Parser;
 use colored::*;
 
@@ -16,6 +17,7 @@ use rayon::prelude::*;
 use size::args::Args;
 use size::format::{build_binary_size_formatter, build_metric_size_formatter};
 use size::stdstreams::write_stdout;
+use size::walk::Walker;
 
 // main entry point for the siz executable
 fn main() -> ExitCode {
@@ -35,7 +37,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn run() -> anyhow::Result<ExitCode> {
+fn run() -> Result<ExitCode> {
     let args = Args::parse();
 
     // configure the directory walker (ignore::WalkerBuilder)
@@ -89,10 +91,7 @@ fn run() -> anyhow::Result<ExitCode> {
             })
         })
     } else if args.name {
-        // extend the ignore::WalkerBuilder with sort_by_file_path sorting
-        let dir_walker = walker_builder.sort_by_file_path(|a, b| a.cmp(b)).build();
-
-        for entry in dir_walker {
+        for entry in Walker::new(&args) {
             let path_entry = entry?;
             format_print_file(
                 &args,
@@ -104,16 +103,12 @@ fn run() -> anyhow::Result<ExitCode> {
         }
     } else {
         let mut v: Vec<(u64, PathBuf)> = Vec::with_capacity(250);
-        // instantiate the WalkBuilder directory walker, includes filters support (ignore lib)
-        let dir_walker = walker_builder.build();
-
         // recursively walk the directory and fill Vec with
         // (file size, file path) data
-        for entry in dir_walker {
+        for entry in Walker::new(&args) {
             let path_entry = entry?;
-            let metadata = path_entry.metadata()?;
             if path_entry.path().is_file() {
-                v.push((metadata.len(), path_entry.path().to_path_buf()));
+                v.push((path_entry.metadata()?.len(), path_entry.into_path()));
             }
         }
 

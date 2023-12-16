@@ -11,22 +11,28 @@ pub struct Args {
     pub path: PathBuf,
 
     /// Size in human readable binary units (powers of 1024)
-    #[arg(short, long, default_value_t = false, conflicts_with = "metric_units")]
+    #[arg(
+        short,
+        long,
+        default_value_t = false,
+        conflicts_with = "metric_units",
+        help_heading = "Size Formatting"
+    )]
     pub binary_units: bool,
 
     /// ANSI colored output
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short, long, default_value_t = false, help_heading = "Color")]
     pub color: bool,
 
-    /// Filter the output by gitignore style globs
-    #[arg(short, long, value_delimiter = ',')]
+    /// Filter the output by gitignore style glob patterns
+    #[arg(short, long, value_delimiter = ',', help_heading = "Filters")]
     pub glob: Option<Vec<String>>,
 
     /// Show hidden dot files and dot directories
     // Note: the logic here is reverse that used in the directory
     // walker builder.  So, we'll not this boolean value in the
     // builder instantiation block below.
-    #[arg(short = 'd', long, default_value_t = false)]
+    #[arg(short = 'd', long, default_value_t = false, help_heading = "Filters")]
     pub hidden: bool,
 
     /// Sort by largest to smallest file size
@@ -35,12 +41,19 @@ pub struct Args {
         long,
         default_value_t = false,
         conflicts_with = "parallel",
-        conflicts_with = "name"
+        conflicts_with = "name",
+        help_heading = "Sorting"
     )]
     pub highlow: bool,
 
     /// Size in human readable SI metric units (powers of 1000)
-    #[arg(short, long, default_value_t = false, conflicts_with = "binary_units")]
+    #[arg(
+        short,
+        long,
+        default_value_t = false,
+        conflicts_with = "binary_units",
+        help_heading = "Size Formatting"
+    )]
     pub metric_units: bool,
 
     /// Sort by filepath name
@@ -49,7 +62,8 @@ pub struct Args {
         long,
         default_value_t = false,
         conflicts_with = "highlow",
-        conflicts_with = "parallel"
+        conflicts_with = "parallel",
+        help_heading = "Sorting"
     )]
     pub name: bool,
 
@@ -59,7 +73,8 @@ pub struct Args {
         long,
         default_value_t = false,
         conflicts_with = "highlow",
-        conflicts_with = "name"
+        conflicts_with = "name",
+        help_heading = "Sorting"
     )]
     pub parallel: bool,
 }

@@ -1,5 +1,5 @@
 use anyhow::{Error, Result};
-use ignore::WalkBuilder;
+use ignore::{overrides::OverrideBuilder, WalkBuilder};
 
 use crate::args::Args;
 
@@ -8,7 +8,7 @@ pub struct Walker {
 }
 
 impl Walker {
-    pub fn new(args: &Args) -> Self {
+    pub fn new(args: &Args) -> Result<Self> {
         let mut binding = WalkBuilder::new(&args.path);
         let walker = binding.hidden(!args.hidden).skip_stdout(true);
 
@@ -17,9 +17,25 @@ impl Walker {
             walker.sort_by_file_path(|a, b| a.cmp(b));
         }
 
-        Self {
-            walker: walker.build(),
+        // filter files on user-defined globs
+        match &args.glob {
+            Some(globs) => {
+                if !globs.is_empty() {
+                    let mut ovrb = OverrideBuilder::new(&args.path);
+                    for glob in globs {
+                        ovrb.add(glob)?;
+                    }
+                    let ovr = ovrb.build()?;
+                    // add the overrides to the walker
+                    walker.overrides(ovr);
+                }
+            }
+            None => (), // ignore, this should never happen b/c it is prohibited on the CL
         }
+
+        Ok(Self {
+            walker: walker.build(),
+        })
     }
 }
 
@@ -41,12 +57,28 @@ pub struct ParallelWalker {
 }
 
 impl ParallelWalker {
-    pub fn new(args: &Args) -> Self {
+    pub fn new(args: &Args) -> Result<Self> {
         let mut binding = WalkBuilder::new(&args.path);
         let walker = binding.hidden(!args.hidden).skip_stdout(true);
 
-        Self {
-            walker: walker.build_parallel(),
+        // filter files on user-defined globs
+        match &args.glob {
+            Some(globs) => {
+                if !globs.is_empty() {
+                    let mut ovrb = OverrideBuilder::new(&args.path);
+                    for glob in globs {
+                        ovrb.add(glob)?;
+                    }
+                    let ovr = ovrb.build()?;
+                    // add the overrides to the walker
+                    walker.overrides(ovr);
+                }
+            }
+            None => (), // ignore, this should never happen b/c it is prohibited on the CL
         }
+
+        Ok(Self {
+            walker: walker.build_parallel(),
+        })
     }
 }

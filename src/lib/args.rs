@@ -18,6 +18,10 @@ pub struct Args {
     #[arg(short, long, default_value_t = false)]
     pub color: bool,
 
+    /// Filter the output by gitignore style globs
+    #[arg(short, long, value_delimiter = ',')]
+    pub glob: Option<Vec<String>>,
+
     /// Show hidden dot files and dot directories
     // Note: the logic here is reverse that used in the directory
     // walker builder.  So, we'll not this boolean value in the

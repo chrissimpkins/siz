@@ -44,7 +44,7 @@ fn run() -> Result<ExitCode> {
     let binary_size_formatter = build_binary_size_formatter();
 
     if args.parallel {
-        ParallelWalker::new(&args).walker.run(|| {
+        ParallelWalker::new(&args)?.walker.run(|| {
             Box::new(|entry| match entry {
                 Ok(entry) => match entry.metadata() {
                     Ok(metadata) => match format_print_file(
@@ -86,7 +86,7 @@ fn run() -> Result<ExitCode> {
             })
         })
     } else if args.name {
-        for entry in Walker::new(&args) {
+        for entry in Walker::new(&args)? {
             let path_entry = entry?;
             format_print_file(
                 &args,
@@ -100,7 +100,7 @@ fn run() -> Result<ExitCode> {
         let mut v: Vec<(u64, PathBuf)> = Vec::with_capacity(250);
         // recursively walk the directory and fill Vec with
         // (file size, file path) data
-        for entry in Walker::new(&args) {
+        for entry in Walker::new(&args)? {
             let path_entry = entry?;
             if path_entry.path().is_file() {
                 v.push((path_entry.metadata()?.len(), path_entry.into_path()));

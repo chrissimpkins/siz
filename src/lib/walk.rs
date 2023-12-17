@@ -17,7 +17,8 @@ impl Walker {
             .require_git(true)
             .max_depth(args.depth)
             .git_global(false)
-            .git_exclude(false);
+            .git_exclude(false)
+            .follow_links(false);
 
         // sort by file path string
         if args.name {
@@ -116,7 +117,8 @@ impl ParallelWalker {
             .require_git(true)
             .max_depth(args.depth)
             .git_global(false)
-            .git_exclude(false);
+            .git_exclude(false)
+            .follow_links(false);
 
         // filter files on user-defined globs
         match &args.glob {

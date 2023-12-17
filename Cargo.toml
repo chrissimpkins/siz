@@ -5,7 +5,7 @@ edition = "2021"
 license = "Apache-2.0"
 authors = ["Chris Simpkins <chris@sourcefoundry.org>"]
 description = """
-TODO
+A customizable Rust command line file size reporting executable with recursive traversal of file systems.
 """
 documentation = "https://github.com/chrissimpkins/size"
 homepage = "https://github.com/chrissimpkins/size"

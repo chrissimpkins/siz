@@ -7,10 +7,13 @@ authors = ["Chris Simpkins <chris@sourcefoundry.org>"]
 description = """
 A customizable Rust command line file size reporting executable with support for recursive traversal of file systems.
 """
-documentation = "https://github.com/chrissimpkins/size"
-homepage = "https://github.com/chrissimpkins/size"
-repository = "https://github.com/chrissimpkins/size"
+documentation = "https://github.com/chrissimpkins/siz"
+homepage = "https://github.com/chrissimpkins/siz"
+repository = "https://github.com/chrissimpkins/siz"
+readme = "README.md"
 rust-version = "1.70.0"
+keywords = ["file", "size", "commandline", "executable"]
+categories = ["command-line-utilities", "filesystem"]
 
 [[bin]]
 name = "siz"

@@ -24,7 +24,7 @@ pub struct Args {
     #[arg(short, long, default_value_t = false, help_heading = "Color")]
     pub color: bool,
 
-    /// Filter the output by gitignore style glob patterns
+    /// Filter the output by gitignore syntax glob patterns
     #[arg(short, long, value_delimiter = ',', help_heading = "Filters")]
     pub glob: Option<Vec<String>>,
 
@@ -56,7 +56,7 @@ pub struct Args {
     )]
     pub metric_units: bool,
 
-    /// Sort by filepath name
+    /// Sort by path name
     #[arg(
         short,
         long,

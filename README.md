@@ -84,6 +84,10 @@ Notable default file filter behaviors include:
 - Respect a local .ignore file. This file supports the same glob syntax as the .gitignore file and allows you to define different sets of includes/excludes than those defined in .gitignore
 - Will not follow symbolic links
 
+## Changes
+
+Please see [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 [Apache License, v2.0](LICENSE)

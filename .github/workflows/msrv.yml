@@ -1,0 +1,20 @@
+name: Min Supported Rust Version
+
+on:
+  push:
+    branches: main
+  pull_request:
+
+jobs:
+  msrv:
+    runs-on: ubuntu-latest
+    name: MSRV
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo msrv
+        run: cargo install cargo-msrv
+      - name: Verify MSRV
+        run: cargo msrv verify

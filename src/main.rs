@@ -12,10 +12,10 @@ use colored::*;
 use rayon::prelude::*;
 
 // size library
-use size::args::Args;
-use size::format::{build_binary_size_formatter, build_metric_size_formatter};
-use size::stdstreams::write_stdout;
-use size::walk::{FileWalker, ParallelWalker};
+use siz::args::Args;
+use siz::format::{build_binary_size_formatter, build_metric_size_formatter};
+use siz::stdstreams::write_stdout;
+use siz::walk::{FileWalker, ParallelWalker};
 
 // main entry point for the siz executable
 fn main() -> ExitCode {

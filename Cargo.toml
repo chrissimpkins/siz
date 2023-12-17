@@ -1,5 +1,5 @@
 [package]
-name = "size"
+name = "siz"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
@@ -16,7 +16,7 @@ name = "siz"
 path = "src/main.rs"
 
 [lib]
-name = "size"
+name = "siz"
 path = "src/lib/lib.rs"
 
 [dependencies]

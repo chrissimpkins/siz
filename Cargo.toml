@@ -10,6 +10,7 @@ TODO
 documentation = "https://github.com/chrissimpkins/size"
 homepage = "https://github.com/chrissimpkins/size"
 repository = "https://github.com/chrissimpkins/size"
+rust-version = "1.70.0"
 
 [[bin]]
 name = "siz"

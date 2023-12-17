@@ -11,7 +11,10 @@ pub struct Walker {
 impl Walker {
     pub fn new(args: &Args) -> Result<Self> {
         let mut binding = WalkBuilder::new(&args.path);
-        let walker = binding.hidden(!args.hidden).skip_stdout(true);
+        let walker = binding
+            .hidden(!args.hidden)
+            .skip_stdout(true)
+            .require_git(true);
 
         // sort by file path string
         if args.name {
@@ -104,7 +107,10 @@ pub struct ParallelWalker {
 impl ParallelWalker {
     pub fn new(args: &Args) -> Result<Self> {
         let mut binding = WalkBuilder::new(&args.path);
-        let walker = binding.hidden(!args.hidden).skip_stdout(true);
+        let walker = binding
+            .hidden(!args.hidden)
+            .skip_stdout(true)
+            .require_git(true);
 
         // filter files on user-defined globs
         match &args.glob {

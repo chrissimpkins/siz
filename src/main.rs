@@ -9,14 +9,13 @@ use std::{
 use anyhow::Result;
 use clap::Parser;
 use colored::*;
-
 use rayon::prelude::*;
 
 // size library
 use size::args::Args;
 use size::format::{build_binary_size_formatter, build_metric_size_formatter};
 use size::stdstreams::write_stdout;
-use size::walk::{ParallelWalker, Walker};
+use size::walk::{FileWalker, ParallelWalker};
 
 // main entry point for the siz executable
 fn main() -> ExitCode {
@@ -44,6 +43,7 @@ fn run() -> Result<ExitCode> {
     let binary_size_formatter = build_binary_size_formatter();
 
     if args.parallel {
+        // unsorted, parallel directory walk output
         ParallelWalker::new(&args)?.walker.run(|| {
             Box::new(|entry| match entry {
                 Ok(entry) => match entry.metadata() {
@@ -86,7 +86,8 @@ fn run() -> Result<ExitCode> {
             })
         })
     } else if args.name {
-        for entry in Walker::new(&args)? {
+        // file path name sorted output
+        for entry in FileWalker::new(&args)? {
             let path_entry = entry?;
             format_print_file(
                 &args,
@@ -97,14 +98,13 @@ fn run() -> Result<ExitCode> {
             )?;
         }
     } else {
+        // default: file size sorted output
         let mut v: Vec<(u64, PathBuf)> = Vec::with_capacity(250);
         // recursively walk the directory and fill Vec with
         // (file size, file path) data
-        for entry in Walker::new(&args)? {
+        for entry in FileWalker::new(&args)? {
             let path_entry = entry?;
-            if path_entry.path().is_file() {
-                v.push((path_entry.metadata()?.len(), path_entry.into_path()));
-            }
+            v.push((path_entry.metadata()?.len(), path_entry.into_path()));
         }
 
         // sort the files by size in place, in parallel with rayon lib
@@ -138,6 +138,8 @@ fn format_print_file(
     binary_size_formatter: impl Fn(u64) -> String,
 ) -> Result<(), std::io::Error> {
     // exclude directories, filter on files only
+    // TODO: remove this is_file check when all dir walkers are
+    // refactored to file walkers
     if filepath.is_file() {
         if args.color {
             let fmt_filepath = match filepath.parent() {

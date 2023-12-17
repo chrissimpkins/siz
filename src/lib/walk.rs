@@ -76,16 +76,11 @@ impl Iterator for FileWalker {
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        match self
-            .walker
-            .by_ref()
-            .filter(|entry| match entry {
-                // filter on file paths only, exclude directory paths
-                Ok(entry) => entry.path().is_file(),
-                Err(_) => false,
-            })
-            .next()
-        {
+        match self.walker.by_ref().find(|entry| match entry {
+            // filter on file paths only, exclude directory paths
+            Ok(entry) => entry.path().is_file(),
+            Err(_) => false,
+        }) {
             Some(Ok(entry)) => Some(Ok(entry)),
             Some(Err(err)) => Some(Err(Error::new(err))),
             None => None,

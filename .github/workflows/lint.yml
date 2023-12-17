@@ -1,0 +1,32 @@
+name: Clippy Lints
+
+on:
+  push:
+    branches: main
+  pull_request:
+
+jobs:
+  clippy-lints-stable:
+    runs-on: ubuntu-latest
+    name: Clippy Lints (Stable)
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Run clippy Lints
+        run: cargo clippy --all-features -- -D warnings
+  clippy-lints-beta:
+    runs-on: ubuntu-latest
+    name: Clippy Lints (Beta)
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest beta Rust toolchain
+        uses: dtolnay/rust-toolchain@beta
+        with:
+          components: clippy
+      - name: Run clippy Lints
+        run: cargo clippy --all-features -- -D warnings

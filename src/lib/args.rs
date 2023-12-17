@@ -16,7 +16,7 @@ pub struct Args {
         long,
         default_value_t = false,
         conflicts_with = "metric_units",
-        help_heading = "Size Formatting"
+        help_heading = "Size Formats"
     )]
     pub binary_units: bool,
 
@@ -52,7 +52,7 @@ pub struct Args {
         long,
         default_value_t = false,
         conflicts_with = "binary_units",
-        help_heading = "Size Formatting"
+        help_heading = "Size Formats"
     )]
     pub metric_units: bool,
 
@@ -67,7 +67,7 @@ pub struct Args {
     )]
     pub name: bool,
 
-    /// Non-deterministic parallel recursive directory walk
+    /// Parallel recursive directory walk (non-deterministic order)
     #[arg(
         short,
         long,

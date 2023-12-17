@@ -224,6 +224,23 @@ mod tests {
         Ok(paths)
     }
 
+    fn walk_file_collect_sorted(prefix: &Path, args: &Args) -> Result<Vec<String>> {
+        let mut paths = vec![];
+        for result in FileWalker::new(args)? {
+            let dirent = match result {
+                Err(_) => continue,
+                Ok(dirent) => dirent,
+            };
+            let path = dirent.path().strip_prefix(prefix).unwrap();
+            if path.as_os_str().is_empty() {
+                continue;
+            }
+            paths.push(normalize_path(path.to_str().unwrap()));
+        }
+        paths.sort();
+        Ok(paths)
+    }
+
     // fn walk_collect_parallel(prefix: &Path, args: &Args) -> Result<Vec<String>> {
     //     let mut paths = vec![];
     //     for dirent in walk_collect_entries_parallel(ParallelWalker::new(args)?.walker) {
@@ -269,6 +286,16 @@ mod tests {
         Ok(())
     }
 
+    fn assert_file_paths_sequential_sorted(
+        prefix: &Path,
+        args: &Args,
+        expected: &[&str],
+    ) -> Result<()> {
+        let got = walk_file_collect_sorted(prefix, args)?;
+        assert_eq!(got, mkpaths(expected), "single threaded, files only");
+        Ok(())
+    }
+
     // fn assert_paths_parallel(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
     //     let got = walk_collect_parallel(prefix, args)?;
     //     assert_eq!(got, mkpaths(expected), "parallel");
@@ -294,14 +321,14 @@ mod tests {
 
         let args = mk_args(td.path(), None, false, false, false, false);
 
-        assert_file_paths_sequential(
+        assert_file_paths_sequential_sorted(
             td.path(),
             &args,
             &[
                 "a/b/ack.js",
-                "a/b/zoo.py",
-                "a/b/zip.py",
                 "a/b/foo.txt",
+                "a/b/zip.py",
+                "a/b/zoo.py",
                 "a/b/zoo.txt",
                 "y/z/foo.md",
             ],
@@ -328,6 +355,7 @@ mod tests {
 
         let args = mk_args(td.path(), None, false, false, true, false);
 
+        // preserve walker name output sorting here
         assert_file_paths_sequential(
             td.path(),
             &args,
@@ -364,15 +392,15 @@ mod tests {
 
         let args = mk_args(td.path(), None, true, false, false, false);
 
-        assert_file_paths_sequential(
+        assert_file_paths_sequential_sorted(
             td.path(),
             &args,
             &[
                 "a/b/.hide.txt", // here is the hidden file
                 "a/b/ack.js",
-                "a/b/zoo.py",
-                "a/b/zip.py",
                 "a/b/foo.txt",
+                "a/b/zip.py",
+                "a/b/zoo.py",
                 "a/b/zoo.txt",
                 "y/z/foo.md",
             ],
@@ -399,6 +427,7 @@ mod tests {
 
         let args = mk_args(td.path(), None, true, false, true, false);
 
+        // preserve walker output sorting here
         assert_file_paths_sequential(
             td.path(),
             &args,

@@ -1,20 +1,16 @@
 // standard library
-use std::{
-    path::Path,
-    path::{PathBuf, MAIN_SEPARATOR_STR},
-    process::ExitCode,
-};
+use std::path::PathBuf;
+use std::process::ExitCode;
 
 // external libraries
 use anyhow::Result;
 use clap::Parser;
-use colored::*;
 use rayon::prelude::*;
 
 // size library
 use siz::args::Args;
 use siz::format::{build_binary_size_formatter, build_metric_size_formatter};
-use siz::stdstreams::write_stdout;
+use siz::stdstreams::format_print_file;
 use siz::walk::{FileWalker, ParallelWalker};
 
 // main entry point for the siz executable
@@ -44,47 +40,11 @@ fn run() -> Result<ExitCode> {
 
     if args.parallel {
         // unsorted, parallel directory walk output
-        ParallelWalker::new(&args)?.walker.run(|| {
-            Box::new(|entry| match entry {
-                Ok(entry) => match entry.metadata() {
-                    Ok(metadata) => match format_print_file(
-                        &args,
-                        &metadata.len(),
-                        entry.path(),
-                        &metric_size_formatter,
-                        &binary_size_formatter,
-                    ) {
-                        Ok(_) => ignore::WalkState::Continue,
-                        Err(err) => {
-                            let mut walk_state = ignore::WalkState::Quit;
-                            let aerr = anyhow::Error::new(err);
-                            let mut broken_pipe_error = false;
-                            for cause in aerr.chain() {
-                                if let Some(ioerr) = cause.downcast_ref::<std::io::Error>() {
-                                    if ioerr.kind() == std::io::ErrorKind::BrokenPipe {
-                                        walk_state = ignore::WalkState::Continue;
-                                        broken_pipe_error = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if !broken_pipe_error {
-                                eprintln!("Error printing to standard output: {}", aerr);
-                            }
-                            walk_state
-                        }
-                    },
-                    Err(e) => {
-                        eprintln!("Error reading metadata: {}", e);
-                        ignore::WalkState::Quit
-                    }
-                },
-                Err(e) => {
-                    eprintln!("Error reading entry: {}", e);
-                    ignore::WalkState::Quit
-                }
-            })
-        })
+        ParallelWalker::new(&args)?.print_files(
+            &args,
+            &metric_size_formatter,
+            &binary_size_formatter,
+        )?;
     } else if args.name {
         // file path name sorted output
         for entry in FileWalker::new(&args)? {
@@ -128,58 +88,4 @@ fn run() -> Result<ExitCode> {
     }
     // return zero exit status code if we did not encounter an error
     Ok(ExitCode::from(0))
-}
-
-fn format_print_file(
-    args: &Args,
-    filesize: &u64,
-    filepath: &Path,
-    metric_size_formatter: impl Fn(u64) -> String,
-    binary_size_formatter: impl Fn(u64) -> String,
-) -> Result<(), std::io::Error> {
-    // exclude directories, filter on files only
-    // TODO: remove this is_file check when all dir walkers are
-    // refactored to file walkers
-    if filepath.is_file() {
-        if args.color {
-            let fmt_filepath = match filepath.parent() {
-                Some(ppath) => match filepath.file_name() {
-                    Some(fpath) => {
-                        format!(
-                            "{}{}{}",
-                            ppath.to_string_lossy().blue(),
-                            MAIN_SEPARATOR_STR.blue(),
-                            fpath.to_string_lossy()
-                        )
-                    }
-                    None => format!("{}", ppath.to_string_lossy().blue()),
-                },
-                None => String::from(""),
-            };
-
-            let fmt_filesize: String;
-            if args.metric_units {
-                fmt_filesize = format!("{:>9}", metric_size_formatter(*filesize));
-                write_stdout(&fmt_filesize, &fmt_filepath)?;
-            } else if args.binary_units {
-                fmt_filesize = format!("{:>10}", binary_size_formatter(*filesize));
-                write_stdout(&fmt_filesize, &fmt_filepath)?;
-            } else {
-                write_stdout(filesize, &fmt_filepath)?;
-            }
-        } else if args.metric_units {
-            write_stdout(
-                format!("{:>9}", metric_size_formatter(*filesize)),
-                filepath.display(),
-            )?;
-        } else if args.binary_units {
-            write_stdout(
-                format!("{:>10}", binary_size_formatter(*filesize)),
-                filepath.display(),
-            )?;
-        } else {
-            write_stdout(filesize, filepath.display())?;
-        }
-    }
-    Ok(())
 }

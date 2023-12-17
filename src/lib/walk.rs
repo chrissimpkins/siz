@@ -2,6 +2,7 @@ use anyhow::{Error, Result};
 use ignore::{overrides::OverrideBuilder, WalkBuilder};
 
 use crate::args::Args;
+use crate::stdstreams::format_print_file;
 
 pub struct Walker {
     walker: ignore::Walk,
@@ -77,7 +78,7 @@ impl Iterator for FileWalker {
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         match self.walker.by_ref().find(|entry| match entry {
-            // filter on file paths only, exclude directory paths
+            // filter on file paths only, exclude all directory paths
             Ok(entry) => entry.path().is_file(),
             Err(_) => false,
         }) {
@@ -125,17 +126,77 @@ impl ParallelWalker {
             walker: walker.build_parallel(),
         })
     }
+
+    pub fn print_files(
+        self,
+        args: &Args,
+        metric_size_formatter: impl Fn(u64) -> String + Send + std::marker::Sync,
+        binary_size_formatter: impl Fn(u64) -> String + Send + std::marker::Sync,
+    ) -> Result<()> {
+        self.walker.run(|| {
+            Box::new(|entry| match entry {
+                Ok(entry) => {
+                    // filter on file paths only, exclude all directory paths
+                    if entry.path().is_file() {
+                        match entry.metadata() {
+                            Ok(metadata) => match format_print_file(
+                                args,
+                                &metadata.len(),
+                                entry.path(),
+                                &metric_size_formatter,
+                                &binary_size_formatter,
+                            ) {
+                                Ok(_) => ignore::WalkState::Continue,
+                                Err(err) => {
+                                    let mut walk_state = ignore::WalkState::Quit;
+                                    let aerr = anyhow::Error::new(err);
+                                    let mut broken_pipe_error = false;
+                                    for cause in aerr.chain() {
+                                        if let Some(ioerr) = cause.downcast_ref::<std::io::Error>()
+                                        {
+                                            if ioerr.kind() == std::io::ErrorKind::BrokenPipe {
+                                                walk_state = ignore::WalkState::Continue;
+                                                broken_pipe_error = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if !broken_pipe_error {
+                                        eprintln!("Error printing to standard output: {}", aerr);
+                                    }
+                                    walk_state
+                                }
+                            },
+                            Err(e) => {
+                                eprintln!("Error reading metadata: {}", e);
+                                ignore::WalkState::Quit
+                            }
+                        }
+                    } else {
+                        // is a directory, not a file
+                        // continue
+                        ignore::WalkState::Continue
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Error reading entry: {}", e);
+                    ignore::WalkState::Quit
+                }
+            })
+        });
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    // use ignore::{DirEntry, WalkParallel, WalkState};
+    use ignore::{DirEntry, WalkParallel, WalkState};
     use pretty_assertions::assert_eq;
     use std::fs::File;
     use std::io::Write;
     use std::path::Path;
-    // use std::sync::{Arc, Mutex};
+    use std::sync::{Arc, Mutex};
     use tempfile::TempDir;
 
     fn mk_args(
@@ -190,23 +251,6 @@ mod tests {
         paths
     }
 
-    // fn walk_collect(prefix: &Path, args: &Args) -> Result<Vec<String>> {
-    //     let mut paths = vec![];
-    //     for result in Walker::new(args)? {
-    //         let dirent = match result {
-    //             Err(_) => continue,
-    //             Ok(dirent) => dirent,
-    //         };
-    //         let path = dirent.path().strip_prefix(prefix).unwrap();
-    //         if path.as_os_str().is_empty() {
-    //             continue;
-    //         }
-    //         paths.push(normalize_path(path.to_str().unwrap()));
-    //     }
-
-    //     Ok(paths)
-    // }
-
     fn walk_file_collect(prefix: &Path, args: &Args) -> Result<Vec<String>> {
         let mut paths = vec![];
         for result in FileWalker::new(args)? {
@@ -241,38 +285,38 @@ mod tests {
         Ok(paths)
     }
 
-    // fn walk_collect_parallel(prefix: &Path, args: &Args) -> Result<Vec<String>> {
-    //     let mut paths = vec![];
-    //     for dirent in walk_collect_entries_parallel(ParallelWalker::new(args)?.walker) {
-    //         let path = dirent.path().strip_prefix(prefix).unwrap();
-    //         if path.as_os_str().is_empty() {
-    //             continue;
-    //         }
-    //         paths.push(normalize_path(path.to_str().unwrap()));
-    //     }
-    //     // sort the paths before returning in order
-    //     // in order to be able to test. This represents
-    //     // an artificial order in the results, but we will
-    //     // still be able to confirm we have complete results
-    //     paths.sort();
-    //     Ok(paths)
-    // }
+    fn walk_collect_parallel(prefix: &Path, args: &Args) -> Result<Vec<String>> {
+        let mut paths = vec![];
+        for dirent in walk_collect_entries_parallel(ParallelWalker::new(args)?.walker) {
+            let path = dirent.path().strip_prefix(prefix).unwrap();
+            if path.as_os_str().is_empty() {
+                continue;
+            }
+            paths.push(normalize_path(path.to_str().unwrap()));
+        }
+        // sort the paths before returning in order
+        // in order to be able to test. This represents
+        // an artificial order in the results, but we will
+        // still be able to confirm we have complete results
+        paths.sort();
+        Ok(paths)
+    }
 
-    // fn walk_collect_entries_parallel(par_walker: WalkParallel) -> Vec<DirEntry> {
-    //     let dirents = Arc::new(Mutex::new(vec![]));
-    //     par_walker.run(|| {
-    //         let dirents = dirents.clone();
-    //         Box::new(move |result| {
-    //             if let Ok(dirent) = result {
-    //                 dirents.lock().unwrap().push(dirent);
-    //             }
-    //             WalkState::Continue
-    //         })
-    //     });
+    fn walk_collect_entries_parallel(par_walker: WalkParallel) -> Vec<DirEntry> {
+        let dirents = Arc::new(Mutex::new(vec![]));
+        par_walker.run(|| {
+            let dirents = dirents.clone();
+            Box::new(move |result| {
+                if let Ok(dirent) = result {
+                    dirents.lock().unwrap().push(dirent);
+                }
+                WalkState::Continue
+            })
+        });
 
-    //     let dirents = dirents.lock().unwrap();
-    //     dirents.to_vec()
-    // }
+        let dirents = dirents.lock().unwrap();
+        dirents.to_vec()
+    }
 
     // fn assert_paths_sequential(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
     //     let got = walk_collect(prefix, args)?;
@@ -296,11 +340,11 @@ mod tests {
         Ok(())
     }
 
-    // fn assert_paths_parallel(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
-    //     let got = walk_collect_parallel(prefix, args)?;
-    //     assert_eq!(got, mkpaths(expected), "parallel");
-    //     Ok(())
-    // }
+    fn assert_paths_parallel_sorted(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
+        let got = walk_collect_parallel(prefix, args)?;
+        assert_eq!(got, mkpaths(expected), "parallel");
+        Ok(())
+    }
 
     // ==================
     // Default execution
@@ -330,6 +374,24 @@ mod tests {
                 "a/b/zip.py",
                 "a/b/zoo.py",
                 "a/b/zoo.txt",
+                "y/z/foo.md",
+            ],
+        )?;
+
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args,
+            &[
+                "a",
+                "a/b",
+                "a/b/ack.js",
+                "a/b/c",
+                "a/b/foo.txt",
+                "a/b/zip.py",
+                "a/b/zoo.py",
+                "a/b/zoo.txt",
+                "y",
+                "y/z",
                 "y/z/foo.md",
             ],
         )?;
@@ -402,6 +464,25 @@ mod tests {
                 "a/b/zip.py",
                 "a/b/zoo.py",
                 "a/b/zoo.txt",
+                "y/z/foo.md",
+            ],
+        )?;
+
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args,
+            &[
+                "a",
+                "a/b",
+                "a/b/.hide.txt", // here is the hidden file
+                "a/b/ack.js",
+                "a/b/c",
+                "a/b/foo.txt",
+                "a/b/zip.py",
+                "a/b/zoo.py",
+                "a/b/zoo.txt",
+                "y",
+                "y/z",
                 "y/z/foo.md",
             ],
         )?;

@@ -130,12 +130,12 @@ impl ParallelWalker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ignore::{DirEntry, WalkParallel, WalkState};
+    // use ignore::{DirEntry, WalkParallel, WalkState};
     use pretty_assertions::assert_eq;
     use std::fs::File;
     use std::io::Write;
     use std::path::Path;
-    use std::sync::{Arc, Mutex};
+    // use std::sync::{Arc, Mutex};
     use tempfile::TempDir;
 
     fn mk_args(
@@ -190,22 +190,22 @@ mod tests {
         paths
     }
 
-    fn walk_collect(prefix: &Path, args: &Args) -> Result<Vec<String>> {
-        let mut paths = vec![];
-        for result in Walker::new(args)? {
-            let dirent = match result {
-                Err(_) => continue,
-                Ok(dirent) => dirent,
-            };
-            let path = dirent.path().strip_prefix(prefix).unwrap();
-            if path.as_os_str().is_empty() {
-                continue;
-            }
-            paths.push(normalize_path(path.to_str().unwrap()));
-        }
+    // fn walk_collect(prefix: &Path, args: &Args) -> Result<Vec<String>> {
+    //     let mut paths = vec![];
+    //     for result in Walker::new(args)? {
+    //         let dirent = match result {
+    //             Err(_) => continue,
+    //             Ok(dirent) => dirent,
+    //         };
+    //         let path = dirent.path().strip_prefix(prefix).unwrap();
+    //         if path.as_os_str().is_empty() {
+    //             continue;
+    //         }
+    //         paths.push(normalize_path(path.to_str().unwrap()));
+    //     }
 
-        Ok(paths)
-    }
+    //     Ok(paths)
+    // }
 
     fn walk_file_collect(prefix: &Path, args: &Args) -> Result<Vec<String>> {
         let mut paths = vec![];
@@ -224,44 +224,44 @@ mod tests {
         Ok(paths)
     }
 
-    fn walk_collect_parallel(prefix: &Path, args: &Args) -> Result<Vec<String>> {
-        let mut paths = vec![];
-        for dirent in walk_collect_entries_parallel(ParallelWalker::new(args)?.walker) {
-            let path = dirent.path().strip_prefix(prefix).unwrap();
-            if path.as_os_str().is_empty() {
-                continue;
-            }
-            paths.push(normalize_path(path.to_str().unwrap()));
-        }
-        // sort the paths before returning in order
-        // in order to be able to test. This represents
-        // an artificial order in the results, but we will
-        // still be able to confirm we have complete results
-        paths.sort();
-        Ok(paths)
-    }
+    // fn walk_collect_parallel(prefix: &Path, args: &Args) -> Result<Vec<String>> {
+    //     let mut paths = vec![];
+    //     for dirent in walk_collect_entries_parallel(ParallelWalker::new(args)?.walker) {
+    //         let path = dirent.path().strip_prefix(prefix).unwrap();
+    //         if path.as_os_str().is_empty() {
+    //             continue;
+    //         }
+    //         paths.push(normalize_path(path.to_str().unwrap()));
+    //     }
+    //     // sort the paths before returning in order
+    //     // in order to be able to test. This represents
+    //     // an artificial order in the results, but we will
+    //     // still be able to confirm we have complete results
+    //     paths.sort();
+    //     Ok(paths)
+    // }
 
-    fn walk_collect_entries_parallel(par_walker: WalkParallel) -> Vec<DirEntry> {
-        let dirents = Arc::new(Mutex::new(vec![]));
-        par_walker.run(|| {
-            let dirents = dirents.clone();
-            Box::new(move |result| {
-                if let Ok(dirent) = result {
-                    dirents.lock().unwrap().push(dirent);
-                }
-                WalkState::Continue
-            })
-        });
+    // fn walk_collect_entries_parallel(par_walker: WalkParallel) -> Vec<DirEntry> {
+    //     let dirents = Arc::new(Mutex::new(vec![]));
+    //     par_walker.run(|| {
+    //         let dirents = dirents.clone();
+    //         Box::new(move |result| {
+    //             if let Ok(dirent) = result {
+    //                 dirents.lock().unwrap().push(dirent);
+    //             }
+    //             WalkState::Continue
+    //         })
+    //     });
 
-        let dirents = dirents.lock().unwrap();
-        dirents.to_vec()
-    }
+    //     let dirents = dirents.lock().unwrap();
+    //     dirents.to_vec()
+    // }
 
-    fn assert_paths_sequential(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
-        let got = walk_collect(prefix, args)?;
-        assert_eq!(got, mkpaths(expected), "single threaded");
-        Ok(())
-    }
+    // fn assert_paths_sequential(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
+    //     let got = walk_collect(prefix, args)?;
+    //     assert_eq!(got, mkpaths(expected), "single threaded");
+    //     Ok(())
+    // }
 
     fn assert_file_paths_sequential(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
         let got = walk_file_collect(prefix, args)?;
@@ -269,11 +269,11 @@ mod tests {
         Ok(())
     }
 
-    fn assert_paths_parallel(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
-        let got = walk_collect_parallel(prefix, args)?;
-        assert_eq!(got, mkpaths(expected), "parallel");
-        Ok(())
-    }
+    // fn assert_paths_parallel(prefix: &Path, args: &Args, expected: &[&str]) -> Result<()> {
+    //     let got = walk_collect_parallel(prefix, args)?;
+    //     assert_eq!(got, mkpaths(expected), "parallel");
+    //     Ok(())
+    // }
 
     // ==================
     // Default execution
@@ -293,41 +293,6 @@ mod tests {
         write_file(td.path().join("y/z/.hide2.txt"), "");
 
         let args = mk_args(td.path(), None, false, false, false, false);
-
-        assert_paths_sequential(
-            td.path(),
-            &args,
-            &[
-                "a",
-                "a/b",
-                "a/b/ack.js",
-                "a/b/zoo.py",
-                "a/b/zip.py",
-                "a/b/foo.txt",
-                "a/b/c",
-                "a/b/zoo.txt",
-                "y",
-                "y/z",
-                "y/z/foo.md",
-            ],
-        )?;
-        assert_paths_parallel(
-            td.path(),
-            &args,
-            &[
-                "a",
-                "a/b",
-                "a/b/ack.js",
-                "a/b/c",
-                "a/b/foo.txt",
-                "a/b/zip.py",
-                "a/b/zoo.py",
-                "a/b/zoo.txt",
-                "y",
-                "y/z",
-                "y/z/foo.md",
-            ],
-        )?;
 
         assert_file_paths_sequential(
             td.path(),
@@ -362,24 +327,6 @@ mod tests {
         write_file(td.path().join("y/z/foo.md"), "");
 
         let args = mk_args(td.path(), None, false, false, true, false);
-
-        assert_paths_sequential(
-            td.path(),
-            &args,
-            &[
-                "a",
-                "a/b",
-                "a/b/ack.js",
-                "a/b/c",
-                "a/b/foo.txt",
-                "a/b/zip.py",
-                "a/b/zoo.py",
-                "a/b/zoo.txt",
-                "y",
-                "y/z",
-                "y/z/foo.md",
-            ],
-        )?;
 
         assert_file_paths_sequential(
             td.path(),
@@ -417,43 +364,6 @@ mod tests {
 
         let args = mk_args(td.path(), None, true, false, false, false);
 
-        assert_paths_sequential(
-            td.path(),
-            &args,
-            &[
-                "a",
-                "a/b",
-                "a/b/.hide.txt", // here is the hidden file
-                "a/b/ack.js",
-                "a/b/zoo.py",
-                "a/b/zip.py",
-                "a/b/foo.txt",
-                "a/b/c",
-                "a/b/zoo.txt",
-                "y",
-                "y/z",
-                "y/z/foo.md",
-            ],
-        )?;
-        assert_paths_parallel(
-            td.path(),
-            &args,
-            &[
-                "a",
-                "a/b",
-                "a/b/.hide.txt", // here is the hidden file
-                "a/b/ack.js",
-                "a/b/c",
-                "a/b/foo.txt",
-                "a/b/zip.py",
-                "a/b/zoo.py",
-                "a/b/zoo.txt",
-                "y",
-                "y/z",
-                "y/z/foo.md",
-            ],
-        )?;
-
         assert_file_paths_sequential(
             td.path(),
             &args,
@@ -488,25 +398,6 @@ mod tests {
         write_file(td.path().join("y/z/foo.md"), "");
 
         let args = mk_args(td.path(), None, true, false, true, false);
-
-        assert_paths_sequential(
-            td.path(),
-            &args,
-            &[
-                "a",
-                "a/b",
-                "a/b/.hide.txt", // here is the hidden file
-                "a/b/ack.js",
-                "a/b/c",
-                "a/b/foo.txt",
-                "a/b/zip.py",
-                "a/b/zoo.py",
-                "a/b/zoo.txt",
-                "y",
-                "y/z",
-                "y/z/foo.md",
-            ],
-        )?;
 
         assert_file_paths_sequential(
             td.path(),

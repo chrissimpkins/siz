@@ -11,10 +11,17 @@ Project tests run in the latest macOS, Windows, and Ubuntu Linux GitHub Actions 
 ## Contents
 
 - [Features](#features)
+  - [Default](#default)
+  - [Optional](#optional)
 - [Quickstart](#quickstart)
 - [Installation](#installation)
+  - [Minimum supported Rust version (MSRV)](#minimum-supported-rust-version-msrv)
+  - [Cargo install (crates.io)](#cargo-install-cratesio)
+  - [Cargo install (source repository)](#cargo-install-source-repository)
 - [Usage](#usage)
+- [Changes](#changes)
 - [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Features
 
@@ -65,7 +72,7 @@ The minimum supported Rust version is 1.70.0.
 Install a Rust toolchain on your system, and then use the cargo package manager to install the `siz` executable from the crates.io distribution with:
 
 ```
-$ cargo install siz
+cargo install siz
 ```
 
 ### Cargo install (source repository)
@@ -95,3 +102,7 @@ Please see [CHANGELOG.md](CHANGELOG.md).
 ## License
 
 [Apache License, v2.0](LICENSE)
+
+## Acknowledgments
+
+This project uses the fantastic [ignore crate](https://github.com/BurntSushi/ripgrep/tree/master/crates/ignore) for recursive file system traversal. This library allows us to support a set of filtered path traversal defaults, command line filtering options, and ignore configuration file support that will feel familiar to users of `ripgrep` and other projects that use this library.  A huge thanks goes out to the ignore project authors for this great resource.

@@ -1,7 +1,8 @@
 # siz
 
-[![Unit Tests, Stable Toolchain](https://github.com/chrissimpkins/siz/actions/workflows/stable-unittests.yml/badge.svg)](https://github.com/chrissimpkins/siz/actions/workflows/stable-unittests.yml)
 ![Crates.io](https://img.shields.io/crates/v/siz)
+[![Unit Tests, Stable Toolchain](https://github.com/chrissimpkins/siz/actions/workflows/stable-unittests.yml/badge.svg)](https://github.com/chrissimpkins/siz/actions/workflows/stable-unittests.yml)
+[![Unit Tests, Beta Toolchain](https://github.com/chrissimpkins/siz/actions/workflows/beta-unittests.yml/badge.svg)](https://github.com/chrissimpkins/siz/actions/workflows/beta-unittests.yml)
 
 `siz` is a customizable Rust **command line file size reporting executable** with support for recursive traversal of file systems. It supports a number of optional filters and sorting features, default smallest-to-largest file size sorting, command line- or .gitignore file-defined glob pattern includes/excludes, human-readable SI metric or binary block size output, and an opinionated set of default (but toggleable) path filters.
 

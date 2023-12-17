@@ -1,0 +1,21 @@
+name: Unit Tests, Nightly Toolchain
+
+on:
+  push:
+    branches: main
+  pull_request:
+
+jobs:
+  unit-tests-nightly:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    name: Nightly Unit Tests
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest nightly Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Run unit tests
+        run: cargo test

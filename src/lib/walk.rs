@@ -14,7 +14,8 @@ impl Walker {
         let walker = binding
             .hidden(!args.hidden)
             .skip_stdout(true)
-            .require_git(true);
+            .require_git(true)
+            .max_depth(args.depth);
 
         // sort by file path string
         if args.name {
@@ -110,7 +111,8 @@ impl ParallelWalker {
         let walker = binding
             .hidden(!args.hidden)
             .skip_stdout(true)
-            .require_git(true);
+            .require_git(true)
+            .max_depth(args.depth);
 
         // filter files on user-defined globs
         match &args.glob {
@@ -212,11 +214,13 @@ mod tests {
         highlow: bool,
         name: bool,
         parallel: bool,
+        depth: Option<usize>,
     ) -> Args {
         Args {
             path: path.to_path_buf(),
             binary_units: false, // does not influence tests here
             color: false,        // does not influence tests here
+            depth,
             glob,
             hidden,
             highlow,
@@ -369,7 +373,7 @@ mod tests {
         write_file(td.path().join("y/z/foo.md"), "");
         write_file(td.path().join("y/z/.hide2.txt"), "");
 
-        let args = mk_args(td.path(), None, false, false, false, false);
+        let args = mk_args(td.path(), None, false, false, false, false, None);
 
         assert_file_paths_sequential_sorted(
             td.path(),
@@ -421,7 +425,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(td.path(), None, false, false, true, false);
+        let args = mk_args(td.path(), None, false, false, true, false, None);
 
         // preserve walker name output sorting here
         assert_file_paths_sequential(
@@ -458,7 +462,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(td.path(), None, true, false, false, false);
+        let args = mk_args(td.path(), None, true, false, false, false, None);
 
         assert_file_paths_sequential_sorted(
             td.path(),
@@ -512,7 +516,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(td.path(), None, true, false, true, false);
+        let args = mk_args(td.path(), None, true, false, true, false, None);
 
         // preserve walker output sorting here
         assert_file_paths_sequential(
@@ -530,6 +534,235 @@ mod tests {
         )?;
 
         // no parallel support for this option combination
+
+        Ok(())
+    }
+
+    // ================================
+    // --depth recursion depth
+    // ================================
+    #[test]
+    fn test_walker_depth() -> Result<()> {
+        let td = tmpdir();
+        mkdir_on_path(td.path().join("a/b/c"));
+        mkdir_on_path(td.path().join("y/z"));
+        write_file(td.path().join(".hide1.txt"), "");
+        write_file(td.path().join("a1.txt"), "");
+        write_file(td.path().join("a1.py"), "");
+        write_file(td.path().join("z1.txt"), "");
+        write_file(td.path().join("a/.hide2.txt"), "");
+        write_file(td.path().join("a/a2.rs"), "");
+        write_file(td.path().join("a/z2.rs"), "");
+        write_file(td.path().join("a/b2.js"), "");
+        write_file(td.path().join("a/b2.txt"), "");
+        write_file(td.path().join("a/b/.hide3.txt"), "");
+        write_file(td.path().join("a/b/z3.txt"), "");
+        write_file(td.path().join("a/b/z3.py"), "");
+        write_file(td.path().join("a/b/a3.py"), "");
+        write_file(td.path().join("y/z/a3.md"), "");
+
+        let args1 = mk_args(td.path(), None, false, false, false, false, Some(1));
+        let args2 = mk_args(td.path(), None, false, false, false, false, Some(2));
+        let args3 = mk_args(td.path(), None, false, false, false, false, Some(3));
+
+        // test traversal depth = 1, sequential
+        assert_file_paths_sequential_sorted(td.path(), &args1, &["a1.py", "a1.txt", "z1.txt"])?;
+
+        // test traversal depth = 2, sequential
+        assert_file_paths_sequential_sorted(
+            td.path(),
+            &args2,
+            &[
+                "a/a2.rs", "a/b2.js", "a/b2.txt", "a/z2.rs", "a1.py", "a1.txt", "z1.txt",
+            ],
+        )?;
+
+        // test traversal depth = 3, sequential
+        assert_file_paths_sequential_sorted(
+            td.path(),
+            &args3,
+            &[
+                "a/a2.rs",
+                "a/b/a3.py",
+                "a/b/z3.py",
+                "a/b/z3.txt",
+                "a/b2.js",
+                "a/b2.txt",
+                "a/z2.rs",
+                "a1.py",
+                "a1.txt",
+                "y/z/a3.md",
+                "z1.txt",
+            ],
+        )?;
+
+        // test traversal depth = 1, parallel
+        assert_paths_parallel_sorted(td.path(), &args1, &["a", "a1.py", "a1.txt", "y", "z1.txt"])?;
+
+        // test traversal depth = 2, parallel
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args2,
+            &[
+                "a", "a/a2.rs", "a/b", "a/b2.js", "a/b2.txt", "a/z2.rs", "a1.py", "a1.txt", "y",
+                "y/z", "z1.txt",
+            ],
+        )?;
+
+        // test traversal depth = 3, parallel
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args3,
+            &[
+                "a",
+                "a/a2.rs",
+                "a/b",
+                "a/b/a3.py",
+                "a/b/c",
+                "a/b/z3.py",
+                "a/b/z3.txt",
+                "a/b2.js",
+                "a/b2.txt",
+                "a/z2.rs",
+                "a1.py",
+                "a1.txt",
+                "y",
+                "y/z",
+                "y/z/a3.md",
+                "z1.txt",
+            ],
+        )?;
+
+        Ok(())
+    }
+
+    // ======================================
+    // --depth recursion depth with --hidden
+    // ======================================
+    #[test]
+    fn test_walker_depth_hidden() -> Result<()> {
+        let td = tmpdir();
+        mkdir_on_path(td.path().join("a/b/c"));
+        mkdir_on_path(td.path().join("y/z"));
+        write_file(td.path().join(".hide1.txt"), "");
+        write_file(td.path().join("a1.txt"), "");
+        write_file(td.path().join("a1.py"), "");
+        write_file(td.path().join("z1.txt"), "");
+        write_file(td.path().join("a/.hide2.txt"), "");
+        write_file(td.path().join("a/a2.rs"), "");
+        write_file(td.path().join("a/z2.rs"), "");
+        write_file(td.path().join("a/b2.js"), "");
+        write_file(td.path().join("a/b2.txt"), "");
+        write_file(td.path().join("a/b/.hide3.txt"), "");
+        write_file(td.path().join("a/b/z3.txt"), "");
+        write_file(td.path().join("a/b/z3.py"), "");
+        write_file(td.path().join("a/b/a3.py"), "");
+        write_file(td.path().join("y/z/a3.md"), "");
+
+        let args1 = mk_args(td.path(), None, true, false, false, false, Some(1));
+        let args2 = mk_args(td.path(), None, true, false, false, false, Some(2));
+        let args3 = mk_args(td.path(), None, true, false, false, false, Some(3));
+
+        // test traversal depth = 1, sequential
+        assert_file_paths_sequential_sorted(
+            td.path(),
+            &args1,
+            &[".hide1.txt", "a1.py", "a1.txt", "z1.txt"],
+        )?;
+
+        // test traversal depth = 2, sequential
+        assert_file_paths_sequential_sorted(
+            td.path(),
+            &args2,
+            &[
+                ".hide1.txt",
+                "a/.hide2.txt",
+                "a/a2.rs",
+                "a/b2.js",
+                "a/b2.txt",
+                "a/z2.rs",
+                "a1.py",
+                "a1.txt",
+                "z1.txt",
+            ],
+        )?;
+
+        // test traversal depth = 3, sequential
+        assert_file_paths_sequential_sorted(
+            td.path(),
+            &args3,
+            &[
+                ".hide1.txt",
+                "a/.hide2.txt",
+                "a/a2.rs",
+                "a/b/.hide3.txt",
+                "a/b/a3.py",
+                "a/b/z3.py",
+                "a/b/z3.txt",
+                "a/b2.js",
+                "a/b2.txt",
+                "a/z2.rs",
+                "a1.py",
+                "a1.txt",
+                "y/z/a3.md",
+                "z1.txt",
+            ],
+        )?;
+
+        // test traversal depth = 1, parallel
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args1,
+            &[".hide1.txt", "a", "a1.py", "a1.txt", "y", "z1.txt"],
+        )?;
+
+        // test traversal depth = 2, parallel
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args2,
+            &[
+                ".hide1.txt",
+                "a",
+                "a/.hide2.txt",
+                "a/a2.rs",
+                "a/b",
+                "a/b2.js",
+                "a/b2.txt",
+                "a/z2.rs",
+                "a1.py",
+                "a1.txt",
+                "y",
+                "y/z",
+                "z1.txt",
+            ],
+        )?;
+
+        // test traversal depth = 3, parallel
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args3,
+            &[
+                ".hide1.txt",
+                "a",
+                "a/.hide2.txt",
+                "a/a2.rs",
+                "a/b",
+                "a/b/.hide3.txt",
+                "a/b/a3.py",
+                "a/b/c",
+                "a/b/z3.py",
+                "a/b/z3.txt",
+                "a/b2.js",
+                "a/b2.txt",
+                "a/z2.rs",
+                "a1.py",
+                "a1.txt",
+                "y",
+                "y/z",
+                "y/z/a3.md",
+                "z1.txt",
+            ],
+        )?;
 
         Ok(())
     }

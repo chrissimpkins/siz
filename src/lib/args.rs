@@ -24,15 +24,19 @@ pub struct Args {
     #[arg(short, long, default_value_t = false, help_heading = "Color")]
     pub color: bool,
 
+    /// Maximum directory traversal depth
+    #[arg(short, long, help_heading = "Filters")]
+    pub depth: Option<usize>,
+
     /// Filter the output by gitignore syntax glob patterns
     #[arg(short, long, value_delimiter = ',', help_heading = "Filters")]
     pub glob: Option<Vec<String>>,
 
     /// Show hidden dot files and dot directories
     // Note: the logic here is reverse that used in the directory
-    // walker builder.  So, we'll not this boolean value in the
-    // builder instantiation block below.
-    #[arg(short = 'd', long, default_value_t = false, help_heading = "Filters")]
+    // walker builder.  So, we'll not this boolean value in
+    // execution logic.
+    #[arg(short = 'H', long, default_value_t = false, help_heading = "Filters")]
     pub hidden: bool,
 
     /// Sort by largest to smallest file size

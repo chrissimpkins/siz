@@ -3,6 +3,7 @@ use ignore::{overrides::OverrideBuilder, WalkBuilder};
 
 use crate::args::Args;
 use crate::stdstreams::format_print_file;
+use crate::types::SizTypesBuilder;
 
 pub struct Walker {
     walker: ignore::Walk,
@@ -25,7 +26,21 @@ impl Walker {
             walker.sort_by_file_path(|a, b| a.cmp(b));
         }
 
+        // filter files on user-defined default types
+        // Note: This is not compatible with the glob option defined below.
+        //       We do not allow both options to be used together at arg parse
+        //       time.
+        match &args.default_type {
+            Some(user_types) => {
+                let mut types_builder = SizTypesBuilder::new();
+                walker.types(types_builder.filter_types(user_types)?);
+            }
+            None => (),
+        }
+
         // filter files on user-defined globs
+        // Note: This is not compatible with the default_type option defined above.
+        //       We do not allow both options to be used together at arg parse time.
         match &args.glob {
             Some(globs) => {
                 if !globs.is_empty() {
@@ -120,7 +135,22 @@ impl ParallelWalker {
             .git_exclude(false)
             .follow_links(false);
 
+        // filter files on user-defined default types
+        // Note: This is not compatible with the glob option defined below.
+        //       We do not allow both options to be used together at arg parse
+        //       time.
+        match &args.default_type {
+            Some(default_types) => {
+                let mut types_builder = SizTypesBuilder::new();
+                let types = types_builder.filter_types(default_types)?;
+                walker.types(types);
+            }
+            None => (),
+        }
+
         // filter files on user-defined globs
+        // Note: This is not compatible with the default_type option defined above.
+        //       We do not allow both options to be used together at arg parse time.
         match &args.glob {
             Some(globs) => {
                 if !globs.is_empty() {
@@ -221,6 +251,7 @@ mod tests {
         name: bool,
         parallel: bool,
         depth: Option<usize>,
+        default_type: Option<Vec<std::string::String>>,
     ) -> Args {
         Args {
             path: path.to_path_buf(),
@@ -233,6 +264,7 @@ mod tests {
             metric_units: false, // does not influence tests here
             name,
             parallel,
+            default_type,
         }
     }
 
@@ -379,7 +411,7 @@ mod tests {
         write_file(td.path().join("y/z/foo.md"), "");
         write_file(td.path().join("y/z/.hide2.txt"), "");
 
-        let args = mk_args(td.path(), None, false, false, false, false, None);
+        let args = mk_args(td.path(), None, false, false, false, false, None, None);
 
         assert_file_paths_sequential_sorted(
             td.path(),
@@ -431,7 +463,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(td.path(), None, false, false, true, false, None);
+        let args = mk_args(td.path(), None, false, false, true, false, None, None);
 
         // preserve walker name output sorting here
         assert_file_paths_sequential(
@@ -468,7 +500,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(td.path(), None, true, false, false, false, None);
+        let args = mk_args(td.path(), None, true, false, false, false, None, None);
 
         assert_file_paths_sequential_sorted(
             td.path(),
@@ -522,7 +554,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(td.path(), None, true, false, true, false, None);
+        let args = mk_args(td.path(), None, true, false, true, false, None, None);
 
         // preserve walker output sorting here
         assert_file_paths_sequential(
@@ -567,9 +599,9 @@ mod tests {
         write_file(td.path().join("a/b/a3.py"), "");
         write_file(td.path().join("y/z/a3.md"), "");
 
-        let args1 = mk_args(td.path(), None, false, false, false, false, Some(1));
-        let args2 = mk_args(td.path(), None, false, false, false, false, Some(2));
-        let args3 = mk_args(td.path(), None, false, false, false, false, Some(3));
+        let args1 = mk_args(td.path(), None, false, false, false, false, Some(1), None);
+        let args2 = mk_args(td.path(), None, false, false, false, false, Some(2), None);
+        let args3 = mk_args(td.path(), None, false, false, false, false, Some(3), None);
 
         // test traversal depth = 1, sequential
         assert_file_paths_sequential_sorted(td.path(), &args1, &["a1.py", "a1.txt", "z1.txt"])?;
@@ -665,9 +697,9 @@ mod tests {
         write_file(td.path().join("a/b/a3.py"), "");
         write_file(td.path().join("y/z/a3.md"), "");
 
-        let args1 = mk_args(td.path(), None, true, false, false, false, Some(1));
-        let args2 = mk_args(td.path(), None, true, false, false, false, Some(2));
-        let args3 = mk_args(td.path(), None, true, false, false, false, Some(3));
+        let args1 = mk_args(td.path(), None, true, false, false, false, Some(1), None);
+        let args2 = mk_args(td.path(), None, true, false, false, false, Some(2), None);
+        let args3 = mk_args(td.path(), None, true, false, false, false, Some(3), None);
 
         // test traversal depth = 1, sequential
         assert_file_paths_sequential_sorted(

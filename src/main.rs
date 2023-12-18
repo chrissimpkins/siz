@@ -25,7 +25,7 @@ fn main() -> ExitCode {
                     }
                 }
             }
-            eprintln!("{:#}", err);
+            eprintln!("Error: {:#}", err);
             ExitCode::from(1)
         }
     }

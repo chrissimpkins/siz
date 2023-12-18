@@ -101,6 +101,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["elm"], &["*.elm"]),
     (&["erb"], &["*.erb"]),
     (&["erlang"], &["*.erl", "*.hrl"]),
+    (&["exe"], &["*.[Ee][Xx][Ee]"]),
     (&["fennel"], &["*.fnl"]),
     (&["fidl"], &["*.fidl"]),
     (&["fish"], &["*.fish"]),

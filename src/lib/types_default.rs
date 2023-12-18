@@ -36,6 +36,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["alire"], &["alire.toml"]),
     (&["amake"], &["*.mk", "*.bp"]),
     (&["apk"], &["*.apk", "*.apks", "*.aab", "*.xapk", "*.apkm", "*.akp"]),
+    (&["appleimg"], &["*.dmg", "*.smi", "*.img"]),
     (&["asciidoc"], &["*.adoc", "*.asc", "*.asciidoc"]),
     (&["asm"], &["*.asm", "*.s", "*.S"]),
     (&["asp"], &[

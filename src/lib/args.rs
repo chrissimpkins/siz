@@ -29,7 +29,13 @@ pub struct Args {
     pub depth: Option<usize>,
 
     /// Filter the output by gitignore syntax glob patterns
-    #[arg(short, long, value_delimiter = ',', help_heading = "Filters")]
+    #[arg(
+        short,
+        long,
+        value_delimiter = ',',
+        conflicts_with = "default_type",
+        help_heading = "Filters"
+    )]
     pub glob: Option<Vec<String>>,
 
     /// Show hidden dot files and dot directories
@@ -81,4 +87,14 @@ pub struct Args {
         help_heading = "Sorting"
     )]
     pub parallel: bool,
+
+    /// Filter the output by one or more comma separated file type names
+    #[arg(
+        short = 't',
+        long = "type",
+        value_delimiter = ',',
+        conflicts_with = "glob",
+        help_heading = "Filters"
+    )]
+    pub default_type: Option<Vec<String>>,
 }

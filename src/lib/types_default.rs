@@ -303,6 +303,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
         "*.scope", "*.service", "*.slice", "*.socket", "*.swap", "*.target",
         "*.timer",
     ]),
+    (&["tar"], &["*.tar", "*.tar.*", "*.tgz", "*.tbz2", "*.txz"]),
     (&["taskpaper"], &["*.taskpaper"]),
     (&["tcl"], &["*.tcl"]),
     (&["tex"], &["*.tex", "*.ltx", "*.cls", "*.sty", "*.bib", "*.dtx", "*.ins"]),

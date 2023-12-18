@@ -109,6 +109,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["fidl"], &["*.fidl"]),
     (&["fish"], &["*.fish"]),
     (&["flatbuffers"], &["*.fbs"]),
+    (&["font"], &["*.otc", "*.otf", "*.ttc", "*.ttf", "*.woff", "*.woff2"]),
     (&["fortran"], &[
         "*.f", "*.F", "*.f77", "*.F77", "*.pfo",
         "*.f90", "*.F90", "*.f95", "*.F95",
@@ -224,6 +225,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["objcpp"], &["*.h", "*.mm"]),
     (&["ocaml"], &["*.ml", "*.mli", "*.mll", "*.mly"]),
     (&["org"], &["*.org", "*.org_archive"]),
+    (&["otf"], &["*.otf", "*.otc"]),
     (&["pants"], &["BUILD"]),
     (&["pascal"], &["*.pas", "*.dpr", "*.lpr", "*.pp", "*.inc"]),
     (&["pdf"], &["*.pdf"]),
@@ -326,6 +328,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["thrift"], &["*.thrift"]),
     (&["toml"], &["*.toml", "Cargo.lock"]),
     (&["ts", "typescript"], &["*.ts", "*.tsx", "*.cts", "*.mts"]),
+    (&["ttf"], &["*.ttf", "*.ttc"]),
     (&["twig"], &["*.twig"]),
     (&["txt"], &["*.txt"]),
     (&["typoscript"], &["*.typoscript", "*.ts"]),
@@ -345,6 +348,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["webidl"], &["*.idl", "*.webidl", "*.widl"]),
     (&["webp"], &["*.webp"]),
     (&["wiki"], &["*.mediawiki", "*.wiki"]),
+    (&["woff"], &["*.woff", "*.woff2"]),
     (&["xml"], &[
         "*.xml", "*.xml.dist", "*.dtd", "*.xsl", "*.xslt", "*.xsd", "*.xjb",
         "*.rng", "*.sch", "*.xhtml",

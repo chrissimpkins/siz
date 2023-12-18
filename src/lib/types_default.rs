@@ -101,6 +101,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["elisp"], &["*.el"]),
     (&["elixir"], &["*.ex", "*.eex", "*.exs", "*.heex", "*.leex", "*.livemd"]),
     (&["elm"], &["*.elm"]),
+    (&["epub"], &["*.epub"]),
     (&["erb"], &["*.erb"]),
     (&["erlang"], &["*.erl", "*.hrl"]),
     (&["exe"], &["*.[Ee][Xx][Ee]"]),

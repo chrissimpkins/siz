@@ -84,6 +84,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["cython"], &["*.pyx", "*.pxi", "*.pxd"]),
     (&["d"], &["*.d"]),
     (&["dart"], &["*.dart"]),
+    (&["deb"], &["*.deb", "*.udeb"]),
     (&["devicetree"], &["*.dts", "*.dtsi"]),
     (&["dhall"], &["*.dhall"]),
     (&["diff"], &["*.patch", "*.diff"]),

@@ -101,7 +101,7 @@ Please see [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-[Apache License, v2.0](LICENSE)
+[Apache License, v2.0](LICENSE) unless otherwise specified.
 
 ## Acknowledgments
 

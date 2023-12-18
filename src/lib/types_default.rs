@@ -238,6 +238,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["prolog"], &["*.pl", "*.pro", "*.prolog", "*.P"]),
     (&["protobuf"], &["*.proto"]),
     (&["ps"], &["*.cdxml", "*.ps1", "*.ps1xml", "*.psd1", "*.psm1"]),
+    (&["psd"], &["*.psd"]),
     (&["puppet"], &["*.epp", "*.erb", "*.pp", "*.rb"]),
     (&["purs"], &["*.purs"]),
     (&["py", "python"], &["*.py", "*.pyi"]),

@@ -116,6 +116,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["fut"], &["*.fut"]),
     (&["gap"], &["*.g", "*.gap", "*.gi", "*.gd", "*.tst"]),
     (&["gif"], &["*.gif"]),
+    (&["gimp"], &["*.xcf"]),
     (&["gn"], &["*.gn", "*.gni"]),
     (&["go"], &["*.go"]),
     (&["gprbuild"], &["*.gpr"]),

@@ -134,6 +134,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["hy"], &["*.hy"]),
     (&["idris"], &["*.idr", "*.lidr"]),
     (&["janet"], &["*.janet"]),
+    (&["jar"], &["*.jar"]),
     (&["java"], &["*.java", "*.jsp", "*.jspx", "*.properties"]),
     (&["jinja"], &["*.j2", "*.jinja", "*.jinja2"]),
     (&["jl"], &["*.jl"]),

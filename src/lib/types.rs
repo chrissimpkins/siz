@@ -38,3 +38,56 @@ impl SizTypesBuilder {
         Ok(self.builder.build()?)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_filter_types_single() -> Result<()> {
+        let mut stb = SizTypesBuilder::new();
+
+        assert!(stb.builder.definitions().len() == 0);
+
+        let matcher = stb.filter_types(&vec![String::from("rust")])?;
+
+        // requested types are whitelisted
+        assert!(matcher.matched("foo.rs", false).is_whitelist());
+        assert!(matcher.matched("foo.py", false).is_ignore());
+        // and non-requested types are ignored
+        assert!(matcher.matched("foo", false).is_ignore());
+        Ok(())
+    }
+
+    #[test]
+    fn test_filter_types_multiple() -> Result<()> {
+        let mut stb = SizTypesBuilder::new();
+
+        assert!(stb.builder.definitions().len() == 0);
+
+        let matcher = stb.filter_types(&vec![String::from("rust"), String::from("py")])?;
+
+        // requested types are whitelisted
+        assert!(matcher.matched("foo.rs", false).is_whitelist());
+        assert!(matcher.matched("foo.py", false).is_whitelist());
+        // and non-requested types are ignored
+        assert!(matcher.matched("foo", false).is_ignore());
+        Ok(())
+    }
+
+    #[test]
+    fn test_filter_types_missing_type() -> Result<()> {
+        let mut stb = SizTypesBuilder::new();
+
+        assert!(stb.builder.definitions().len() == 0);
+
+        // unsupported types raise an error
+        assert!(stb.filter_types(&vec![String::from("bogus")]).is_err());
+        // including when chained with types that are supported
+        assert!(stb
+            .filter_types(&vec![String::from("rust"), String::from("bogus")])
+            .is_err());
+
+        Ok(())
+    }
+}

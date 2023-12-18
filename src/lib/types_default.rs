@@ -51,6 +51,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
         "WORKSPACE", "WORKSPACE.bazel",
     ]),
     (&["bitbake"], &["*.bb", "*.bbappend", "*.bbclass", "*.conf", "*.inc"]),
+    (&["bmp"], &["*.bmp", "*.dib"]),
     (&["brotli"], &["*.br"]),
     (&["buildstream"], &["*.bst"]),
     (&["bzip2"], &["*.bz2", "*.tbz2"]),

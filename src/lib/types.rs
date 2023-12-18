@@ -7,6 +7,12 @@ pub struct SizTypesBuilder {
     builder: TypesBuilder,
 }
 
+impl Default for SizTypesBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SizTypesBuilder {
     pub fn new() -> Self {
         Self {
@@ -27,7 +33,7 @@ impl SizTypesBuilder {
     pub fn filter_types(&mut self, types: &Vec<String>) -> Result<Types> {
         self.add_type_defaults();
         for t in types {
-            self.builder.select(&t);
+            self.builder.select(t);
         }
         Ok(self.builder.build()?)
     }

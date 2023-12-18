@@ -261,6 +261,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["robot"], &["*.robot"]),
     (&["rpm"], &["*.rpm"]),
     (&["rst"], &["*.rst"]),
+    (&["rtf"], &["*.rtf"]),
     (&["ruby"], &[
         // Idiomatic files
         "config.ru", "Gemfile", ".irbrc", "Rakefile",

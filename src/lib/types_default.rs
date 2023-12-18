@@ -346,6 +346,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["yang"], &["*.yang"]),
     (&["z"], &["*.Z"]),
     (&["zig"], &["*.zig"]),
+    (&["zip"], &["*.zip", "*.zipx", "*.z01", "*.zx01"]),
     (&["zsh"], &[
         ".zshenv", "zshenv",
         ".zlogin", "zlogin",

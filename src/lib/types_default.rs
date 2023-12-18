@@ -32,6 +32,7 @@
 pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["ada"], &["*.adb", "*.ads"]),
     (&["agda"], &["*.agda", "*.lagda"]),
+    (&["ai"], &["*.ai"]),
     (&["aidl"], &["*.aidl"]),
     (&["alire"], &["alire.toml"]),
     (&["amake"], &["*.mk", "*.bp"]),

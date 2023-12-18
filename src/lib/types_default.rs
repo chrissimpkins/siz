@@ -251,6 +251,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["red"], &["*.r", "*.red", "*.reds"]),
     (&["rescript"], &["*.res", "*.resi"]),
     (&["robot"], &["*.robot"]),
+    (&["rpm"], &["*.rpm"]),
     (&["rst"], &["*.rst"]),
     (&["ruby"], &[
         // Idiomatic files

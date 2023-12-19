@@ -39,6 +39,26 @@ impl SizTypesBuilder {
     }
 }
 
+pub fn get_printable_types() -> String {
+    let mut types_string = String::new();
+    for &(names, exts) in DEFAULT_TYPES {
+        for name in names {
+            types_string += &format!("{}:", name);
+            for ext in exts {
+                types_string += &format!(" {}", ext);
+            }
+            types_string += "\n";
+        }
+    }
+    if types_string.ends_with("\n") {
+        types_string = types_string.strip_suffix("\n").unwrap().to_string();
+    }
+    if types_string.ends_with("\r") {
+        types_string = types_string.strip_suffix("\r").unwrap().to_string();
+    }
+    types_string
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

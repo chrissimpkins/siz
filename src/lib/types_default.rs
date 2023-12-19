@@ -113,6 +113,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["fennel"], &["*.fnl"]),
     (&["fidl"], &["*.fidl"]),
     (&["fish"], &["*.fish"]),
+    (&["flac"], &["*.flac"]),
     (&["flatbuffers"], &["*.fbs"]),
     (&["font"], &["*.otc", "*.otf", "*.ttc", "*.ttf", "*.woff", "*.woff2"]),
     (&["fortran"], &[

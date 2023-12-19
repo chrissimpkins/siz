@@ -45,6 +45,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
         "*.ascx.vb", "*.asp"
     ]),
     (&["ats"], &["*.ats", "*.dats", "*.sats", "*.hats"]),
+    (&["avi"], &["*.avi"]),
     (&["avif"], &["*.avif"]),
     (&["avro"], &["*.avdl", "*.avpr", "*.avsc"]),
     (&["awk"], &["*.awk"]),

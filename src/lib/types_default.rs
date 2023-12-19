@@ -229,6 +229,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
         "*.csproj", "*.fsproj", "*.vcxproj", "*.proj", "*.props", "*.targets",
         "*.sln",
     ]),
+    (&["msi"], &["*.msi"]),
     (&["nim"], &["*.nim", "*.nimf", "*.nimble", "*.nims"]),
     (&["nix"], &["*.nix"]),
     (&["objc"], &["*.h", "*.m"]),

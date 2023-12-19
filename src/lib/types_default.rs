@@ -96,6 +96,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["dhall"], &["*.dhall"]),
     (&["diff"], &["*.patch", "*.diff"]),
     (&["dita"], &["*.dita", "*.ditamap", "*.ditaval"]),
+    (&["dll"], &["*.dll", "*.DLL"]),
     (&["doc"], &["*.doc", "*.docx"]),
     (&["docker"], &["*Dockerfile*"]),
     (&["dockercompose"], &["docker-compose.yml", "docker-compose.*.yml"]),

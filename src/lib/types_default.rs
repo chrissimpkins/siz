@@ -260,6 +260,7 @@ pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
         "*.raku", "*.rakumod", "*.rakudoc", "*.rakutest",
         "*.p6", "*.pl6", "*.pm6"
     ]),
+    (&["rar"], &["*.rar"]),
     (&["rdoc"], &["*.rdoc"]),
     (&["readme"], &["README*", "*README"]),
     (&["reasonml"], &["*.re", "*.rei"]),

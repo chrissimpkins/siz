@@ -8,9 +8,10 @@ use clap::Parser;
 use rayon::prelude::*;
 
 // size library
-use siz::args::Args;
+use siz::args::{Args, Commands};
 use siz::format::{build_binary_size_formatter, build_metric_size_formatter};
 use siz::stdstreams::format_print_file;
+use siz::types::get_printable_types;
 use siz::walk::{FileWalker, ParallelWalker};
 
 // main entry point for the siz executable
@@ -33,6 +34,35 @@ fn main() -> ExitCode {
 
 fn run() -> Result<ExitCode> {
     let args = Args::parse();
+
+    // Subcommand handling
+    match &args.command {
+        Some(cmd) => match cmd {
+            // list-types subcommand
+            Commands::ListTypes => {
+                let types_string = get_printable_types();
+                println!("{}", types_string);
+                return Ok(ExitCode::from(0));
+            }
+        },
+        None => {}
+    }
+
+    // --------------------------------------------------------------
+    // IMPORTANT: must keep the presence of a path definition check
+    // here because we unwrap the Option in other places in the code.
+    // --------------------------------------------------------------
+    // command line path argument validation
+    match &args.path {
+        Some(path) => {
+            if !path.exists() {
+                anyhow::bail!("path does not exist: {}", path.display());
+            }
+        }
+        None => {
+            anyhow::bail!("a file or directory path argument is required. Enter a path at the end of your command.");
+        }
+    }
 
     // instantiate the human readable size formatters (humansize lib)
     let metric_size_formatter = build_metric_size_formatter();

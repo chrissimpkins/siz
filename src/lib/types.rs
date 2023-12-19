@@ -50,11 +50,11 @@ pub fn get_printable_types() -> String {
             types_string += "\n";
         }
     }
-    if types_string.ends_with("\n") {
-        types_string = types_string.strip_suffix("\n").unwrap().to_string();
+    if types_string.ends_with('\n') {
+        types_string = types_string.strip_suffix('\n').unwrap().to_string();
     }
-    if types_string.ends_with("\r") {
-        types_string = types_string.strip_suffix("\r").unwrap().to_string();
+    if types_string.ends_with('\r') {
+        types_string = types_string.strip_suffix('\r').unwrap().to_string();
     }
     types_string
 }
@@ -109,5 +109,10 @@ mod tests {
             .is_err());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_get_printable_types() {
+        let _ = get_printable_types();
     }
 }

@@ -30,6 +30,7 @@
 
 #[rustfmt::skip]
 pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
+    (&["aac"], &["*.aac"]),
     (&["ada"], &["*.adb", "*.ads"]),
     (&["agda"], &["*.agda", "*.lagda"]),
     (&["ai"], &["*.ai"]),

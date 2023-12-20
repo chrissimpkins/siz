@@ -9,7 +9,7 @@ use clap::Parser;
 use colored::Colorize;
 use rayon::prelude::*;
 
-// size library
+// siz library
 use siz::args::Args;
 use siz::format::{build_binary_size_formatter, build_metric_size_formatter};
 use siz::stdstreams::format_print_file;

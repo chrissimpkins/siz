@@ -1,10 +1,12 @@
 // standard library
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
 // external libraries
 use anyhow::Result;
 use clap::Parser;
+use colored::Colorize;
 use rayon::prelude::*;
 
 // size library
@@ -26,7 +28,7 @@ fn main() -> ExitCode {
                     }
                 }
             }
-            eprintln!("Error: {:#}", err);
+            let _ = writeln!(std::io::stderr(), "{} {:#}", "Error:".red().bold(), err);
             ExitCode::from(1)
         }
     }

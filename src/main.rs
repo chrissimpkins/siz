@@ -10,7 +10,7 @@ use colored::Colorize;
 use rayon::prelude::*;
 
 // size library
-use siz::args::{Args, Commands};
+use siz::args::Args;
 use siz::format::{build_binary_size_formatter, build_metric_size_formatter};
 use siz::stdstreams::format_print_file;
 use siz::types::get_printable_types;
@@ -37,24 +37,20 @@ fn main() -> ExitCode {
 fn run() -> Result<ExitCode> {
     let args = Args::parse();
 
-    // Subcommand handling
-    match &args.command {
-        Some(cmd) => match cmd {
-            // list-types subcommand
-            Commands::ListTypes => {
-                let types_string = get_printable_types();
-                println!("{}", types_string);
-                return Ok(ExitCode::from(0));
-            }
-        },
-        None => {}
+    // Short circuit argument handling
+    // The block below will return exit status codes without
+    // further execution
+    if args.list_types {
+        let types_string = get_printable_types();
+        println!("{}", types_string);
+        return Ok(ExitCode::from(0));
     }
 
     // --------------------------------------------------------------
     // IMPORTANT: must keep the presence of a path definition check
     // here because we unwrap the Option in other places in the code.
     // --------------------------------------------------------------
-    // command line path argument validation
+    // Validation: command line path argument
     match &args.path {
         Some(path) => {
             if !path.exists() {

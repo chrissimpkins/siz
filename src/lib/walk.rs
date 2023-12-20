@@ -273,7 +273,7 @@ mod tests {
             name,
             parallel,
             default_type,
-            command: None,
+            list_types: false, // does not influence tests here
         }
     }
 

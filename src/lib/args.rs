@@ -1,15 +1,12 @@
 use std::path::PathBuf;
 
-use clap::{Parser, Subcommand};
+use clap::Parser;
 
 /// Command line options
 #[derive(Parser, Debug)]
 #[command(name = "siz")]
 #[command(author, version, about, long_about = None, override_usage = "siz [COMMAND] [OPTIONS] PATH")]
 pub struct Args {
-    #[command(subcommand)]
-    pub command: Option<Commands>,
-
     /// File or directory path
     pub path: Option<PathBuf>,
 
@@ -59,6 +56,10 @@ pub struct Args {
     )]
     pub highlow: bool,
 
+    /// Print the built-in types available for use with the types filter
+    #[arg(long = "list-types", default_value_t = false, help_heading = "Filters")]
+    pub list_types: bool,
+
     /// Size in human readable SI metric units (powers of 1000)
     #[arg(
         short,
@@ -92,7 +93,7 @@ pub struct Args {
     pub parallel: bool,
 
     /// Filter the output by one or more comma separated file type names.
-    /// Use the list-types command to view the default file types.
+    /// Use the list-types option to view a list of the built-in file types.
     #[arg(
         short = 't',
         long = "type",
@@ -102,10 +103,4 @@ pub struct Args {
         help_heading = "Filters"
     )]
     pub default_type: Option<Vec<String>>,
-}
-
-#[derive(Debug, Subcommand)]
-pub enum Commands {
-    /// List the default file type names and extensions used with the --type option
-    ListTypes,
 }

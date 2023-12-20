@@ -41,7 +41,7 @@ fn run() -> Result<ExitCode> {
     // The block below will return exit status codes without
     // further execution
     if args.list_types {
-        let types_string = get_printable_types();
+        let types_string = get_printable_types(args.color);
         println!("{}", types_string);
         return Ok(ExitCode::from(0));
     }

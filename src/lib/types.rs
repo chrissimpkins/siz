@@ -1,6 +1,7 @@
 use crate::types_default::DEFAULT_TYPES;
 
 use anyhow::Result;
+use colored::Colorize;
 use ignore::types::{Types, TypesBuilder};
 
 pub struct SizTypesBuilder {
@@ -39,11 +40,15 @@ impl SizTypesBuilder {
     }
 }
 
-pub fn get_printable_types() -> String {
+pub fn get_printable_types(color: bool) -> String {
     let mut types_string = String::new();
     for &(names, exts) in DEFAULT_TYPES {
         for name in names {
-            types_string += &format!("{}:", name);
+            if color {
+                types_string += &format!("{}:", name.blue().bold());
+            } else {
+                types_string += &format!("{}:", name);
+            }
             for ext in exts {
                 types_string += &format!(" {}", ext);
             }
@@ -113,6 +118,7 @@ mod tests {
 
     #[test]
     fn test_get_printable_types() {
-        let _ = get_printable_types();
+        let _ = get_printable_types(false);
+        let _ = get_printable_types(true);
     }
 }

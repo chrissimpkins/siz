@@ -1,40 +1,88 @@
+/// Calculates the Levenshtein distance between two strings.
+///
+/// The Levenshtein distance is a measure of the difference between two strings.
+/// It is defined as the minimum number of single-character edits (insertions, deletions, or substitutions)
+/// required to change one string into the other. This function is designed to be used with
+/// the ASCII-only strings that are used in the siz crate.
+///
+/// # Arguments
+///
+/// * `s1` - The first string.
+/// * `s2` - The second string.
+///
+/// # Returns
+///
+/// The Levenshtein distance between `s1` and `s2`.
+///
+/// # Examples
+///
+/// ```
+/// use siz::fuzzy::levenshtein_distance;
+///
+/// let distance = levenshtein_distance("kitten", "sitting");
+/// assert_eq!(distance, 3);
+/// ```
 #[inline(always)]
-pub fn levenshtein_distance(s1: &str, s2: &str) -> u32 {
-    let n = s1.len();
-    let m = s2.len();
-    let mut d: Vec<Vec<u32>> = vec![vec![0; m + 1]; n + 1];
-
-    if n == 0 {
-        return m as u32;
-    } else if m == 0 {
-        return n as u32;
+pub fn levenshtein_distance(s1: &str, s2: &str) -> usize {
+    let s1_chars: Vec<char> = s1.chars().collect();
+    let s2_chars: Vec<char> = s2.chars().collect();
+    let len_s1 = s1_chars.len();
+    let len_s2 = s2_chars.len();
+    if len_s1 == 0 {
+        return len_s2;
     }
-
-    for i in 0..=n {
-        for j in 0..=m {
-            if i == 0 {
-                d[i][j] = j as u32;
-            } else if j == 0 {
-                d[i][j] = i as u32;
+    if len_s2 == 0 {
+        return len_s1;
+    }
+    let mut d: [Vec<usize>; 2] = [vec![0; len_s2 + 1], vec![0; len_s2 + 1]];
+    for j in 0..=len_s2 {
+        d[0][j] = j;
+    }
+    for i in 1..=len_s1 {
+        d[i % 2][0] = i;
+        for j in 1..=len_s2 {
+            let cost = if s1_chars[i - 1] != s2_chars[j - 1] {
+                1
             } else {
-                d[i][j] = *[
-                    d[i - 1][j] + 1, // deletion
-                    d[i][j - 1] + 1, // insertion
-                    d[i - 1][j - 1]
-                        + (s1.chars().nth(i - 1).unwrap() != s2.chars().nth(j - 1).unwrap()) as u32, // substitution
-                ]
-                .iter()
-                .min()
-                .unwrap();
-            }
+                0
+            };
+            d[i % 2][j] = std::cmp::min(
+                std::cmp::min(d[(i - 1) % 2][j] + 1, d[i % 2][j - 1] + 1),
+                d[(i - 1) % 2][j - 1] + cost,
+            );
         }
     }
-
-    d[n][m]
+    d[len_s1 % 2][len_s2]
 }
 
+///
+/// The Levenshtein similarity ratio is a measure of the similarity between two strings.
+/// It is defined as the ratio of the length of the combined strings minus the Levenshtein distance,
+/// divided by the length of the combined strings.
+///
+/// # Arguments
+///
+/// * `s1` - The first string.
+/// * `s2` - The second string.
+///
+/// # Returns
+///
+/// The Levenshtein similarity ratio between `s1` and `s2`.
+///
+/// # Examples
+///
+/// ```
+/// use siz::fuzzy::levenshtein_similarity_ratio;
+///
+/// let similarity = levenshtein_similarity_ratio("kitten", "sitting");
+/// assert_eq!(similarity, 0.7692307692307693);
+/// ```
 #[inline(always)]
 pub fn levenshtein_similarity_ratio(s1: &str, s2: &str) -> f64 {
+    if s1 == s2 {
+        return 1.0;
+    }
+
     let distance = levenshtein_distance(s1, s2);
     let len_sum = s1.len() + s2.len();
 

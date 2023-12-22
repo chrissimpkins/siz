@@ -12,7 +12,7 @@ use ignore::Error;
 /// to filter files based on default path glob patterns.
 ///
 /// The `SizTypesBuilder` struct provides methods for loading the default types,
-/// defining type filters based on user input, and generating printable
+/// defining type filters based on user input, and generating printable string
 /// representations of the type names and glob patterns. It also supports approximate
 /// string matching for type name suggestions when an unsupported type value is requested.
 ///
@@ -134,7 +134,7 @@ impl SizTypesBuilder {
         vec![Vec::from_iter(matches), approx_matches]
     }
 
-    /// Defines the active filter types based on user input.
+    /// Defines the active filter types by string input.
     ///
     /// This method takes a vector of type names and returns a `Result` containing
     /// an `ignore::types::Types` struct defined with the type name data. If an

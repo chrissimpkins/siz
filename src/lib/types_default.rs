@@ -28,6 +28,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+/// `DEFAULT_TYPES` is a constant that defines the default file types and their associated file path glob patterns.
+///
+/// It is a slice of tuples, where each tuple contains a slice of type names and a slice of associated file path glob patterns.
+///
+/// # Example
+///
+/// For example, the tuple `(&["rust"], &["*.rs"])` defines the "rust" file type and associates it with the "*.rs" file extension.
+///
+/// # Usage
+///
+/// This constant is used to provide default file type definitions. These definitions can be used to filter files by type
+/// on the command line.
 #[rustfmt::skip]
 pub(crate) const DEFAULT_TYPES: &[(&[&str], &[&str])] = &[
     (&["7z"], &["*.7z"]),

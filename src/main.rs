@@ -1,16 +1,19 @@
 // standard library
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
 // external libraries
 use anyhow::Result;
 use clap::Parser;
+use colored::Colorize;
 use rayon::prelude::*;
 
-// size library
+// siz library
 use siz::args::Args;
 use siz::format::{build_binary_size_formatter, build_metric_size_formatter};
 use siz::stdstreams::format_print_file;
+use siz::types::get_printable_types;
 use siz::walk::{FileWalker, ParallelWalker};
 
 // main entry point for the siz executable
@@ -25,7 +28,7 @@ fn main() -> ExitCode {
                     }
                 }
             }
-            eprintln!("{:#}", err);
+            let _ = writeln!(std::io::stderr(), "{} {:#}", "Error:".red().bold(), err);
             ExitCode::from(1)
         }
     }
@@ -33,6 +36,31 @@ fn main() -> ExitCode {
 
 fn run() -> Result<ExitCode> {
     let args = Args::parse();
+
+    // Short circuit argument handling
+    // The block below will return exit status codes without
+    // further execution
+    if args.list_types {
+        let types_string = get_printable_types(args.color);
+        println!("{}", types_string);
+        return Ok(ExitCode::from(0));
+    }
+
+    // --------------------------------------------------------------
+    // IMPORTANT: must keep the presence of a path definition check
+    // here because we unwrap the Option in other places in the code.
+    // --------------------------------------------------------------
+    // Validation: command line path argument
+    match &args.path {
+        Some(path) => {
+            if !path.exists() {
+                anyhow::bail!("path does not exist: {}", path.display());
+            }
+        }
+        None => {
+            anyhow::bail!("a file or directory path argument is required. Enter a path at the end of your command.");
+        }
+    }
 
     // instantiate the human readable size formatters (humansize lib)
     let metric_size_formatter = build_metric_size_formatter();

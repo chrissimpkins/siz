@@ -1,6 +1,6 @@
 [package]
 name = "siz"
-version = "0.1.0"
+version = "0.2.0-alpha.1"
 edition = "2021"
 license = "Apache-2.0"
 authors = ["Chris Simpkins <chris@sourcefoundry.org>"]
@@ -25,12 +25,18 @@ path = "src/lib/lib.rs"
 
 [dependencies]
 anyhow = "1.0.76"
-clap = { version = "4.4", features = ["derive"] }
+clap = { version = "4.4", features = ["derive", "wrap_help"] }
 colored = "2.1"
 humansize = "2.0"
 ignore = "0.4"
 rayon = "1.8"
 
 [dev-dependencies]
+approx = "0.5"
+criterion = "0.5"
 pretty_assertions = "1.4"
 tempfile = "3.2.0"
+
+[[bench]]
+name = "siz_benches"
+harness = false

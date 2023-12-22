@@ -226,7 +226,7 @@ impl SizTypesBuilder {
     }
 }
 
-/// Generates a printable representation of the types names and glob patterns.
+/// Generates a printable representation of the default type names and glob patterns.
 ///
 /// This method returns a string containing the type names and associated glob patterns.
 ///

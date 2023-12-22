@@ -8,6 +8,8 @@ use humansize::{make_format, BINARY, DECIMAL};
 /// # Examples
 ///
 /// ```
+/// use siz::format::build_metric_size_formatter;
+///
 /// let msf = build_metric_size_formatter();
 /// assert_eq!(msf(1000), "1 kB");
 /// ```
@@ -24,6 +26,8 @@ pub fn build_metric_size_formatter() -> impl Fn(u64) -> String {
 /// # Examples
 ///
 /// ```
+/// use siz::format::build_binary_size_formatter;
+///
 /// let bsf = build_binary_size_formatter();
 /// assert_eq!(bsf(1024), "1 KiB");
 /// ```

@@ -141,3 +141,52 @@ pub struct Args {
     )]
     pub default_type: Option<Vec<String>>,
 }
+
+impl Default for Args {
+    fn default() -> Self {
+        Args::parse_from(vec!["siz"])
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_args_default_values() {
+        let args = Args::default();
+
+        assert_eq!(args.path, None);
+        assert_eq!(args.binary_units, false);
+        assert_eq!(args.color, false);
+        assert_eq!(args.depth, None);
+        assert_eq!(args.glob, None);
+        assert_eq!(args.hidden, false);
+        assert_eq!(args.highlow, false);
+        assert_eq!(args.list_types, false);
+        assert_eq!(args.metric_units, false);
+        assert_eq!(args.name, false);
+        assert_eq!(args.parallel, false);
+        assert_eq!(args.default_type, None);
+    }
+
+    #[test]
+    fn test_args_parse_from() {
+        // this is simply a test that we can modify the values to use in our CI tests across
+        // the crate, and documentation of how to do it.
+        let args = Args::parse_from(vec!["siz", "--color", "--binary-units", "foo"]);
+
+        assert_eq!(args.path, Some(PathBuf::from("foo")));
+        assert_eq!(args.binary_units, true);
+        assert_eq!(args.color, true);
+        assert_eq!(args.depth, None);
+        assert_eq!(args.glob, None);
+        assert_eq!(args.hidden, false);
+        assert_eq!(args.highlow, false);
+        assert_eq!(args.list_types, false);
+        assert_eq!(args.metric_units, false);
+        assert_eq!(args.name, false);
+        assert_eq!(args.parallel, false);
+        assert_eq!(args.default_type, None);
+    }
+}

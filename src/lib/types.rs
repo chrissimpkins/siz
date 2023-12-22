@@ -1,3 +1,5 @@
+//! This module provides support for default type definitions that are used to filter paths
+//! with the ignore crate.
 use std::collections::HashSet;
 
 use crate::fuzzy::levenshtein_similarity_ratio;

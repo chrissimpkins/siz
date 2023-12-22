@@ -1,3 +1,4 @@
+//! This module provides support for walking the file system.
 use anyhow::{Error, Result};
 use ignore::{overrides::OverrideBuilder, WalkBuilder};
 

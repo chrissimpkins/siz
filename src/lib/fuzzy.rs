@@ -1,9 +1,11 @@
+//! This module provides functions for approximate string matching.
+
 /// Calculates the Levenshtein distance between two strings.
 ///
 /// The Levenshtein distance is a measure of the difference between two strings.
 /// It is defined as the minimum number of single-character edits (insertions, deletions, or substitutions)
 /// required to change one string into the other. This function is designed to be used with
-/// the ASCII-only strings that are used in the siz crate.
+/// the ASCII-only strings in the siz crate.
 ///
 /// # Arguments
 ///

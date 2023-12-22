@@ -1,3 +1,5 @@
+//! This module provides default type name and associated path glob pattern definitions.
+
 // This source file was derived from the Rust ignore crate. The original source
 // file was found at the following URL and repository state:
 // https://github.com/BurntSushi/ripgrep/blob/3f2fe0afee0d1a1eeb3235904cfef4f35c4644dc/crates/ignore/src/default_types.rs

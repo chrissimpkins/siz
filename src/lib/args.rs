@@ -1,3 +1,4 @@
+//! This module provides structures and functions for parsing command line arguments.
 use std::path::PathBuf;
 
 use clap::builder::styling::{AnsiColor, Effects, Styles};

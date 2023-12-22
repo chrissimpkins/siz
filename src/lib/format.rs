@@ -1,3 +1,4 @@
+//! This module provides functions for formatting the output.
 use humansize::{make_format, BINARY, DECIMAL};
 
 /// Returns a closure that formats a file size in SI metric units (powers of 1000).

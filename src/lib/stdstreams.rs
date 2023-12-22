@@ -1,3 +1,4 @@
+//! This module provides functions for working with standard input and output streams.
 use std::io::Write;
 use std::path::{Path, MAIN_SEPARATOR_STR};
 use std::sync::OnceLock;
@@ -5,8 +6,20 @@ use std::sync::OnceLock;
 use crate::args::Args;
 use colored::*;
 
+/// A `std::sync::OnceLock` for the platform-specific colored separator
+/// string used to format file path output.
 static COLORED_SEPARATOR_STR: OnceLock<ColoredString> = OnceLock::new();
 
+/// Writes the given `filesize` and `filepath` to stdout.
+///
+/// # Arguments
+///
+/// * `filesize` - The size of the file to be written.
+/// * `filepath` - The path of the file to be written.
+///
+/// # Returns
+///
+/// Returns `Ok(())` if the write operation is successful, otherwise returns an `std::io::Error`.
 #[inline(always)]
 pub fn write_stdout<T, U>(filesize: T, filepath: U) -> Result<(), std::io::Error>
 where
@@ -17,6 +30,21 @@ where
     Ok(())
 }
 
+/// Formats and prints the file information to the standard output stream based
+/// on the provided arguments.
+///
+/// # Arguments
+///
+/// * `args` - The command line arguments.
+/// * `filesize` - The size of the file.
+/// * `filepath` - The path of the file.
+/// * `metric_size_formatter` - The function to format the file size in metric units.
+/// * `binary_size_formatter` - The function to format the file size in binary units.
+///
+/// # Returns
+///
+/// Returns `Ok(())` if the formatting and printing is successful, otherwise returns
+/// a `std::io::Error`.
 #[inline(always)]
 pub fn format_print_file(
     args: &Args,

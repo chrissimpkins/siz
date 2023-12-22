@@ -2,7 +2,35 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
-/// Command line options
+/// `Args` is a struct that represents the command line arguments passed to the program.
+///
+/// It uses the `clap::Parser` derive macro to parse the command line arguments.
+///
+/// # Fields
+///
+/// * `path`: An optional `PathBuf` that represents the file or directory path.
+///
+/// * `binary_units`: A boolean that indicates whether to display the size in human readable binary units (powers of 1024).
+///
+/// * `color`: A boolean that indicates whether to use ANSI colored output.
+///
+/// * `depth`: An optional `usize` that represents the maximum directory traversal depth.
+///
+/// * `glob`: An optional vector of `String` that represents path glob patterns to filter the output.
+///
+/// * `hidden`: A boolean that indicates whether to show hidden dot files and dot directories.
+///
+/// * `highlow`: A boolean that indicates whether to sort the output by largest to smallest file size.
+///
+/// * `list-types`: A boolean that indicates whether to print the built-in types available for use with the types filter.
+///
+/// * `metric_units`: A boolean that indicates whether to display the size in human readable SI metric units (powers of 1000).
+///
+/// * `name`: A boolean that indicates whether to sort the output by path name.
+///
+/// * `parallel`: A boolean that indicates whether to use parallel recursive directory walk (non-deterministic order).
+///
+/// * `default_type`: An optional vector of `String` that represents file type names to filter the output.
 #[derive(Parser, Debug)]
 #[command(name = "siz")]
 #[command(author, version, about, long_about = None, override_usage = "siz [COMMAND] [OPTIONS] PATH")]

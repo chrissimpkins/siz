@@ -1,10 +1,32 @@
 use humansize::{make_format, BINARY, DECIMAL};
 
+/// Returns a closure that formats a file size in SI metric units (powers of 1000).
+///
+/// The returned closure takes a file size in bytes as an argument and returns a
+/// string that represents the file size in a human-readable SI metric format.
+///
+/// # Examples
+///
+/// ```
+/// let msf = build_metric_size_formatter();
+/// assert_eq!(msf(1000), "1 kB");
+/// ```
 #[inline(always)]
 pub fn build_metric_size_formatter() -> impl Fn(u64) -> String {
     make_format(DECIMAL)
 }
 
+/// Returns a closure that formats a file size in binary units (powers of 1024).
+///
+/// The returned closure takes a file size in bytes as an argument and returns a
+/// string that represents the file size in a human-readable binary format.
+///
+/// # Examples
+///
+/// ```
+/// let bsf = build_binary_size_formatter();
+/// assert_eq!(bsf(1024), "1 KiB");
+/// ```
 #[inline(always)]
 pub fn build_binary_size_formatter() -> impl Fn(u64) -> String {
     make_format(BINARY)

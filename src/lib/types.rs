@@ -8,17 +8,53 @@ use colored::Colorize;
 use ignore::types::{Types, TypesBuilder};
 use ignore::Error;
 
+/// A builder for creating the `ignore::types::Types` struct that is used
+/// to filter files based on default path glob patterns.
+///
+/// The `SizTypesBuilder` struct provides methods for loading the default types,
+/// defining type filters based on user input, and generating printable
+/// representations of the type names and glob patterns. It also supports approximate
+/// string matching for type name suggestions when an unsupported type value is requested.
+///
+/// # Examples
+///
+/// ```
+/// use siz::types::SizTypesBuilder;
+///
+/// let mut builder = SizTypesBuilder::new();
+///
+/// // Define active `ignore::types::Types` filters
+/// let types = builder.filter_types(&vec![String::from("rust"), String::from("py")]);
+/// ```
 pub struct SizTypesBuilder {
     builder: TypesBuilder,
 }
 
 impl Default for SizTypesBuilder {
+    /// Creates a new, default `SizTypesBuilder` instance.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use siz::types::SizTypesBuilder;
+    ///
+    /// let builder = SizTypesBuilder::default();
+    /// ```
     fn default() -> Self {
         Self::new()
     }
 }
 
 impl SizTypesBuilder {
+    /// Creates a new `SizTypesBuilder` instance.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use siz::types::SizTypesBuilder;
+    ///
+    /// let builder = SizTypesBuilder::new();
+    /// ```
     pub fn new() -> Self {
         Self {
             builder: TypesBuilder::new(),
@@ -98,6 +134,44 @@ impl SizTypesBuilder {
         vec![Vec::from_iter(matches), approx_matches]
     }
 
+    /// Defines the active filter types based on user input.
+    ///
+    /// This method takes a vector of type names and returns a `Result` containing
+    /// an `ignore::types::Types` struct defined with the type name data. If an
+    /// unsupported type is requested, the method performs approximate string matching
+    /// to suggest alternative types.
+    ///
+    /// # Arguments
+    ///
+    /// * `types` - A vector of type names to use in filter definitions.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing `ignore::types::Types`.
+    ///
+    /// # Errors
+    ///
+    /// This method returns an error if an unsupported type is requested.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use siz::types::SizTypesBuilder;
+    ///
+    /// let mut builder = SizTypesBuilder::new();
+    ///
+    /// let types = builder.filter_types(&vec![String::from("rust"), String::from("py")]);
+    ///
+    /// match types {
+    ///     Ok(filtered_types) => {
+    ///        // Use the `ignore::types::Types` struct to define type name filters
+    ///        // in an `ignore::WalkBuilder` instance.
+    ///     },
+    ///     Err(err) => {
+    ///         // Handle the error
+    ///     }
+    /// }
+    /// ```
     pub fn filter_types(&mut self, types: &Vec<String>) -> Result<Types> {
         self.add_type_defaults();
         for t in types {
@@ -152,6 +226,27 @@ impl SizTypesBuilder {
     }
 }
 
+/// Generates a printable representation of the types names and glob patterns.
+///
+/// This method returns a string containing the type names and associated glob patterns.
+///
+/// # Arguments
+///
+/// * `color` - A boolean indicating whether to include ANSI color formatting in the
+/// output string.
+///
+/// # Returns
+///
+/// A string containing the printable representation of the types.
+///
+/// # Examples
+///
+/// ```
+/// use siz::types::get_printable_types;
+///
+/// let printable_types = get_printable_types(true);
+/// println!("{}", printable_types);
+/// ```
 pub fn get_printable_types(color: bool) -> String {
     let mut types_string = String::new();
     for &(names, exts) in DEFAULT_TYPES {

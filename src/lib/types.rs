@@ -1,8 +1,12 @@
+use std::collections::HashSet;
+
+use crate::fuzzy::levenshtein_similarity_ratio;
 use crate::types_default::DEFAULT_TYPES;
 
 use anyhow::Result;
 use colored::Colorize;
 use ignore::types::{Types, TypesBuilder};
+use ignore::Error;
 
 pub struct SizTypesBuilder {
     builder: TypesBuilder,
@@ -31,12 +35,120 @@ impl SizTypesBuilder {
         }
     }
 
+    fn get_approximate_match_types(&mut self, needle: &String) -> Vec<Vec<String>> {
+        // the similarity ratio threshold for approximate string matching
+        // this is the minimum ratio that a string must have to be considered
+        // an approximate match.  The ratio is calculated using the Levenshtein
+        // distance algorithm.
+        let similarity_ratio_threshold = 0.75;
+        let mut matches = HashSet::new();
+        let mut lev_ratios: Vec<(f64, String)> = vec![];
+        for ty in DEFAULT_TYPES.iter() {
+            let ty_names = ty.0;
+            let ty_exts = ty.1;
+            let mut temp_ratios: Vec<f64> = vec![];
+            // extension string matches
+            for ext in ty_exts {
+                let fmt_ext: &str;
+                // user might have entered an extension string instead of the type name,
+                // remove the "*." prefix and attempt exact match
+                if ext.starts_with("*.") {
+                    fmt_ext = ext.strip_prefix("*.").unwrap();
+                } else if ext.starts_with('.') {
+                    fmt_ext = ext.strip_prefix('.').unwrap();
+                } else {
+                    fmt_ext = ext;
+                }
+                if needle == fmt_ext {
+                    // add matches to the matches HashSet, de-dupes
+                    matches.insert(ty_names[0].to_string());
+                } else {
+                    // calculate the similarity ratio between the needle and the extension string
+                    // add approximate matches to the temp_ratios vector
+                    temp_ratios.push(levenshtein_similarity_ratio(needle, fmt_ext));
+                }
+            }
+            // type name string matches
+            // calculate the similarity ratio between the needle and the type name
+            // and add approximate matches to the temp_ratios vector
+            for name in ty_names {
+                temp_ratios.push(levenshtein_similarity_ratio(needle, name));
+            }
+
+            // remove NaN values from the temp_ratios vector before the sort
+            temp_ratios.retain(|f| !f.is_nan());
+            // sort high to low
+            temp_ratios.sort_by(|a, b| b.partial_cmp(a).unwrap());
+            // keep the max similarity ratio associated with the type name
+            lev_ratios.push((temp_ratios[0], ty_names[0].to_string()));
+        }
+        // sort the full set of type names by similarity ratio, high to low
+        lev_ratios.sort_by(|a, b| b.partial_cmp(a).unwrap());
+        // keep the ratios that are above the threshold value defined above, exact glob pattern string
+        // matches are already in the matches HashSet.
+        lev_ratios.retain(|(a, _b)| *a > similarity_ratio_threshold);
+
+        // TODO: remove me or convert to logging
+        // println!("{:?}", lev_ratios);
+        let approx_matches = lev_ratios
+            .iter()
+            .map(|(_, b)| b.to_string())
+            .collect::<Vec<String>>();
+
+        vec![Vec::from_iter(matches), approx_matches]
+    }
+
     pub fn filter_types(&mut self, types: &Vec<String>) -> Result<Types> {
         self.add_type_defaults();
         for t in types {
             self.builder.select(t);
         }
-        Ok(self.builder.build()?)
+        match self.builder.build() {
+            Ok(types) => Ok(types),
+            Err(err) => match err {
+                Error::UnrecognizedFileType(ref name) => {
+                    // user requested a type that is not supported
+                    // let's approximate string match on requested type name for
+                    // suggestions to return to the user.  This runs matches against
+                    // path glob strings with and without the "*." prefix and approximate
+                    // matches against the type names and path glob strings without the "*" or "."
+                    // chars using the Levenshtein distance algorithm.  Then we format the
+                    // user output with the best matches.
+                    let suggestions = self.get_approximate_match_types(name);
+                    let matches = &suggestions[0];
+                    let matches_string = format!(
+                        "Did you mean: {}? The '{}' string matched in the path glob pattern list.",
+                        matches.join(" or "),
+                        name
+                    );
+                    let approx_matches = &suggestions[1];
+                    let approx_matches_string = format!(
+                        "Types with approximate type name or path glob pattern string matches: {}",
+                        approx_matches.join(", "),
+                    );
+                    let use_list_types_string =
+                        "See --list-types for a list of supported type names and associated path glob patterns.";
+
+                    let user_string: String;
+                    if !matches.is_empty() {
+                        user_string =
+                            format!("{}\n\n{}\n\n{}", err, matches_string, use_list_types_string);
+                    } else if !approx_matches.is_empty() {
+                        user_string = format!(
+                            "{}\n\n{}\n\n{}",
+                            err, approx_matches_string, use_list_types_string
+                        );
+                    } else {
+                        user_string = format!("{}\n\n{}", err, use_list_types_string);
+                    }
+
+                    anyhow::bail!("{}", user_string);
+                }
+                _ => {
+                    anyhow::bail!("error building types: {}", err);
+                }
+            },
+        }
     }
 }
 
@@ -114,6 +226,34 @@ mod tests {
             .is_err());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_get_approximate_match_types_exact_match() {
+        let mut stb = SizTypesBuilder::new();
+        stb.add_type_defaults();
+        let _ = stb.filter_types(&vec![String::from("jinja2")]);
+
+        let result = stb.get_approximate_match_types(&String::from("jinja2"));
+
+        // Assert that the result contains the expected approximate matches
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0], vec!["jinja".to_string()]);
+        assert_eq!(result[1], vec!["jinja".to_string()]);
+    }
+
+    #[test]
+    fn test_get_approximate_match_types_approximate_match() {
+        let mut stb = SizTypesBuilder::new();
+        stb.add_type_defaults();
+        let _ = stb.filter_types(&vec![String::from("xmls")]);
+
+        let result = stb.get_approximate_match_types(&String::from("xmls"));
+
+        // Assert that the result contains the expected approximate matches
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0], Vec::<String>::new());
+        assert_eq!(result[1], vec!["xml".to_string(), "xls".to_string()]);
     }
 
     #[test]

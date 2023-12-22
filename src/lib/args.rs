@@ -1,6 +1,15 @@
 use std::path::PathBuf;
 
+use clap::builder::styling::{AnsiColor, Effects, Styles};
 use clap::Parser;
+
+fn styles() -> Styles {
+    Styles::styled()
+        .header(AnsiColor::Red.on_default() | Effects::BOLD)
+        .usage(AnsiColor::Red.on_default() | Effects::BOLD)
+        .literal(AnsiColor::Blue.on_default() | Effects::BOLD)
+        .placeholder(AnsiColor::Green.on_default())
+}
 
 /// `Args` is a struct that represents the command line arguments passed to the program.
 ///
@@ -33,7 +42,7 @@ use clap::Parser;
 /// * `default_type`: An optional vector of `String` that represents file type names to filter the output.
 #[derive(Parser, Debug)]
 #[command(name = "siz")]
-#[command(author, version, about, long_about = None, override_usage = "siz [COMMAND] [OPTIONS] PATH")]
+#[command(author, version, about, styles = styles(), long_about = None, override_usage = "siz [COMMAND] [OPTIONS] PATH")]
 pub struct Args {
     /// File or directory path
     pub path: Option<PathBuf>,

@@ -243,39 +243,14 @@ impl ParallelWalker {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use clap::Parser;
     use ignore::{DirEntry, WalkParallel, WalkState};
     use pretty_assertions::assert_eq;
     use std::fs::File;
     use std::io::Write;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
     use std::sync::{Arc, Mutex};
     use tempfile::TempDir;
-
-    fn mk_args(
-        path: Option<PathBuf>,
-        glob: Option<Vec<std::string::String>>,
-        hidden: bool,
-        highlow: bool,
-        name: bool,
-        parallel: bool,
-        depth: Option<usize>,
-        default_type: Option<Vec<std::string::String>>,
-    ) -> Args {
-        Args {
-            path: Some(path.unwrap().to_path_buf()),
-            binary_units: false, // does not influence tests here
-            color: false,        // does not influence tests here
-            depth,
-            glob,
-            hidden,
-            highlow,
-            metric_units: false, // does not influence tests here
-            name,
-            parallel,
-            default_type,
-            list_types: false, // does not influence tests here
-        }
-    }
 
     fn tmpdir() -> TempDir {
         TempDir::new().unwrap()
@@ -409,6 +384,7 @@ mod tests {
     #[test]
     fn test_walker_default() -> Result<()> {
         let td = tmpdir();
+        let td_path = td.path().to_str().unwrap();
         mkdir_on_path(td.path().join("a/b/c"));
         mkdir_on_path(td.path().join("y/z"));
         write_file(td.path().join("a/b/.hide.txt"), "");
@@ -420,16 +396,7 @@ mod tests {
         write_file(td.path().join("y/z/foo.md"), "");
         write_file(td.path().join("y/z/.hide2.txt"), "");
 
-        let args = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            false,
-            false,
-            false,
-            false,
-            None,
-            None,
-        );
+        let args = Args::parse_from(vec!["siz", td_path]);
 
         assert_file_paths_sequential_sorted(
             td.path(),
@@ -471,6 +438,7 @@ mod tests {
     #[test]
     fn test_walker_name() -> Result<()> {
         let td = tmpdir();
+        let td_path = td.path().to_str().unwrap();
         mkdir_on_path(td.path().join("a/b/c"));
         mkdir_on_path(td.path().join("y/z"));
         write_file(td.path().join("a/b/.hide.txt"), "");
@@ -481,16 +449,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            false,
-            false,
-            true,
-            false,
-            None,
-            None,
-        );
+        let args = Args::parse_from(vec!["siz", "--name", td_path]);
 
         // preserve walker name output sorting here
         assert_file_paths_sequential(
@@ -517,6 +476,7 @@ mod tests {
     #[test]
     fn test_walker_hidden() -> Result<()> {
         let td = tmpdir();
+        let td_path = td.path().to_str().unwrap();
         mkdir_on_path(td.path().join("a/b/c"));
         mkdir_on_path(td.path().join("y/z"));
         write_file(td.path().join("a/b/.hide.txt"), "");
@@ -527,16 +487,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            true,
-            false,
-            false,
-            false,
-            None,
-            None,
-        );
+        let args = Args::parse_from(vec!["siz", "--hidden", td_path]);
 
         assert_file_paths_sequential_sorted(
             td.path(),
@@ -580,6 +531,7 @@ mod tests {
     #[test]
     fn test_walker_hidden_name() -> Result<()> {
         let td = tmpdir();
+        let td_path = td.path().to_str().unwrap();
         mkdir_on_path(td.path().join("a/b/c"));
         mkdir_on_path(td.path().join("y/z"));
         write_file(td.path().join("a/b/.hide.txt"), "");
@@ -590,16 +542,7 @@ mod tests {
         write_file(td.path().join("a/b/zip.py"), "");
         write_file(td.path().join("y/z/foo.md"), "");
 
-        let args = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            true,
-            false,
-            true,
-            false,
-            None,
-            None,
-        );
+        let args = Args::parse_from(vec!["siz", "--hidden", "--name", td_path]);
 
         // preserve walker output sorting here
         assert_file_paths_sequential(
@@ -627,6 +570,7 @@ mod tests {
     #[test]
     fn test_walker_depth() -> Result<()> {
         let td = tmpdir();
+        let td_path = td.path().to_str().unwrap();
         mkdir_on_path(td.path().join("a/b/c"));
         mkdir_on_path(td.path().join("y/z"));
         write_file(td.path().join(".hide1.txt"), "");
@@ -644,36 +588,9 @@ mod tests {
         write_file(td.path().join("a/b/a3.py"), "");
         write_file(td.path().join("y/z/a3.md"), "");
 
-        let args1 = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            false,
-            false,
-            false,
-            false,
-            Some(1),
-            None,
-        );
-        let args2 = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            false,
-            false,
-            false,
-            false,
-            Some(2),
-            None,
-        );
-        let args3 = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            false,
-            false,
-            false,
-            false,
-            Some(3),
-            None,
-        );
+        let args1 = Args::parse_from(vec!["siz", "--depth", "1", td_path]);
+        let args2 = Args::parse_from(vec!["siz", "--depth", "2", td_path]);
+        let args3 = Args::parse_from(vec!["siz", "--depth", "3", td_path]);
 
         // test traversal depth = 1, sequential
         assert_file_paths_sequential_sorted(td.path(), &args1, &["a1.py", "a1.txt", "z1.txt"])?;
@@ -752,6 +669,7 @@ mod tests {
     #[test]
     fn test_walker_depth_hidden() -> Result<()> {
         let td = tmpdir();
+        let td_path = td.path().to_str().unwrap();
         mkdir_on_path(td.path().join("a/b/c"));
         mkdir_on_path(td.path().join("y/z"));
         write_file(td.path().join(".hide1.txt"), "");
@@ -769,36 +687,9 @@ mod tests {
         write_file(td.path().join("a/b/a3.py"), "");
         write_file(td.path().join("y/z/a3.md"), "");
 
-        let args1 = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            true,
-            false,
-            false,
-            false,
-            Some(1),
-            None,
-        );
-        let args2 = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            true,
-            false,
-            false,
-            false,
-            Some(2),
-            None,
-        );
-        let args3 = mk_args(
-            Some(td.path().to_path_buf()),
-            None,
-            true,
-            false,
-            false,
-            false,
-            Some(3),
-            None,
-        );
+        let args1 = Args::parse_from(vec!["siz", "--hidden", "--depth", "1", td_path]);
+        let args2 = Args::parse_from(vec!["siz", "--hidden", "--depth", "2", td_path]);
+        let args3 = Args::parse_from(vec!["siz", "--hidden", "--depth", "3", td_path]);
 
         // test traversal depth = 1, sequential
         assert_file_paths_sequential_sorted(

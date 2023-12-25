@@ -20,7 +20,7 @@ fn styles() -> Styles {
 ///
 /// * `path`: An optional `PathBuf` that represents the file or directory path.
 ///
-/// * `binary_units`: A boolean that indicates whether to display the size in human readable binary units (powers of 1024).
+/// * `binary_units`: A boolean that indicates whether to display the size in human readable binary units.
 ///
 /// * `color`: A boolean that indicates whether to use ANSI colored output.
 ///
@@ -34,7 +34,7 @@ fn styles() -> Styles {
 ///
 /// * `list-types`: A boolean that indicates whether to print the built-in types available for use with the types filter.
 ///
-/// * `metric_units`: A boolean that indicates whether to display the size in human readable SI metric units (powers of 1000).
+/// * `metric_units`: A boolean that indicates whether to display the size in human readable SI metric units.
 ///
 /// * `name`: A boolean that indicates whether to sort the output by path name.
 ///
@@ -48,7 +48,7 @@ pub struct Args {
     /// File or directory path
     pub path: Option<PathBuf>,
 
-    /// Size in human readable binary units (powers of 1024)
+    /// Size in human-readable binary units
     #[arg(
         short,
         long,
@@ -94,11 +94,11 @@ pub struct Args {
     )]
     pub highlow: bool,
 
-    /// Print the built-in types available for use with the types filter
+    /// Print the built-in type aliases available for use with the type option
     #[arg(long = "list-types", default_value_t = false, help_heading = "Filters")]
     pub list_types: bool,
 
-    /// Size in human readable SI metric units (powers of 1000)
+    /// Size in human-readable SI metric units
     #[arg(
         short,
         long,
@@ -130,8 +130,9 @@ pub struct Args {
     )]
     pub parallel: bool,
 
-    /// Filter the output by one or more comma separated file type names.
-    /// Use the list-types option to view a list of the built-in file types.
+    /// Filter the output by one or more comma-separated file type alias names.
+    /// Use the list-types option to view a list of the built-in file type
+    /// aliases.
     #[arg(
         short = 't',
         long = "type",

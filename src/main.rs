@@ -1,3 +1,4 @@
+//! The siz executable entry point.
 // standard library
 use std::io::Write;
 use std::path::PathBuf;

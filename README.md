@@ -134,9 +134,9 @@ Here's how you can contribute:
     git push origin add-new-feature
     ```
 
-7. **Submit a Pull Request**: Go to the `siz` repository on GitHub, and click the "New pull request" button. Select your fork and the branch that contains your changes. Click the "Create pull request" button to submit your pull request.
+7. **Submit a Pull Request**: Follow the [GitHub Pull Request instructions](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) to create a new pull request with your proposed changes.
 
-Before submitting a pull request, please make sure your code compiles and all tests pass, including the clippy lints. If you're adding a new feature, please add tests that cover the new feature.
+**Before submitting a pull request**, please make sure your code compiles and all tests pass, including the clippy lints. If you're adding a new feature, please add tests that cover the new feature.
 
 You can run the following commands in the root of your downstream source repository to execute these tests before you submit your pull request:
 

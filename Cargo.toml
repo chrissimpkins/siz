@@ -5,7 +5,7 @@ edition = "2021"
 license = "Apache-2.0"
 authors = ["Chris Simpkins <chris@sourcefoundry.org>"]
 description = """
-A customizable Rust command line file size reporting executable with support for recursive traversal of file systems.
+A versatile, cross-platform command line file size reporting executable with default recursive file system traversal.
 """
 documentation = "https://github.com/chrissimpkins/siz"
 homepage = "https://github.com/chrissimpkins/siz"

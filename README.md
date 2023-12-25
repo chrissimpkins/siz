@@ -20,6 +20,7 @@ Project tests run in the latest macOS, Windows, and Ubuntu Linux GitHub Actions 
   - [Cargo install (source repository)](#cargo-install-source-repository)
 - [Usage](#usage)
 - [Changes](#changes)
+- [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
@@ -98,6 +99,53 @@ Notable default file filter behaviors include:
 ## Changes
 
 Please see [CHANGELOG.md](CHANGELOG.md).
+
+## Contributing
+
+We welcome contributions to the `siz` project under the Apache License v2.0. Whether you're looking to fix bugs, add new features, or improve documentation, your help is greatly appreciated. 
+
+Here's how you can contribute:
+
+1. **Fork the Repository**: Fork the `siz` repository to your own GitHub account.
+
+2. **Clone the Repository**: Clone the forked repository to your local machine.
+
+    ```text
+    git clone https://github.com/<your-username>/siz.git
+    ```
+
+3. **Create a New Branch**: Create a new branch for your changes.
+
+    ```text
+    git checkout -b add-new-feature
+    ```
+
+4. **Make Your Changes**: Make your changes to the code or documentation.
+
+5. **Commit Your Changes**: Commit your changes to your branch. Include a commit message that briefly describes your changes.
+
+    ```text
+    git commit -m "Add new feature"
+    ```
+
+6. **Push Your Changes**: Push your changes to your forked repository on GitHub.
+
+    ```text
+    git push origin add-new-feature
+    ```
+
+7. **Submit a Pull Request**: Go to the `siz` repository on GitHub, and click the "New pull request" button. Select your fork and the branch that contains your changes. Click the "Create pull request" button to submit your pull request.
+
+Before submitting a pull request, please make sure your code compiles and all tests pass, including the clippy lints. If you're adding a new feature, please add tests that cover the new feature.
+
+You can run the following commands in the root of your downstream source repository to execute these tests before you submit your pull request:
+
+```text
+cargo test
+cargo clippy
+```
+
+If you have any questions or need help with contributing, please feel free to reach out.
 
 ## License
 

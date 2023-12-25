@@ -6,11 +6,61 @@ use crate::args::Args;
 use crate::stdstreams::format_print_file;
 use crate::types::SizTypesBuilder;
 
+/// `Walker` is a struct that encapsulates the functionality of walking the file system.
+///
+/// It uses the `ignore::Walk` struct from the `ignore` crate to perform the file system walk.
+/// Iteration over the `Walker` struct yields `Result<ignore::DirEntry>` instances that include
+/// both file and directory entries.
+///
+/// # Fields
+///
+/// * `walker`: An `ignore::Walk` instance that performs the file system walk.
+///
+/// # Usage
+///
+/// An instance of `Walker` is created by calling the `new` function and passing in a reference
+/// to an `Args` struct that contains the command line arguments. The `Walker` instance is then
+/// used to walk the file system and perform operations on each file or directory.
+///
+/// # Examples
+///
+/// ```
+/// use clap::Parser;
+///
+/// use siz::args::Args;
+/// use siz::walk::Walker;
+///
+/// let args = Args::parse_from(vec!["siz", "."]);
+/// let walker = Walker::new(&args).unwrap();
+/// ```
 pub struct Walker {
     walker: ignore::Walk,
 }
 
 impl Walker {
+    /// Constructs a new `Walker` instance.
+    ///
+    /// This method takes a reference to an `Args` struct that contains the command line arguments.
+    ///
+    /// # Parameters
+    ///
+    /// * `args`: A reference to an `Args` struct that contains the command line arguments.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` that contains a `Walker` instance if the method succeeds, or an error if the method fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use clap::Parser;
+    ///
+    /// use siz::args::Args;
+    /// use siz::walk::Walker;
+    ///
+    /// let args = Args::parse_from(vec!["siz", "."]);
+    /// let walker = Walker::new(&args).unwrap();
+    /// ```
     pub fn new(args: &Args) -> Result<Self> {
         // we unwrap Option here because we know it is Some(PathBuf) from
         // the arg parsing logic in main.rs
@@ -88,11 +138,61 @@ impl From<FileWalker> for Walker {
     }
 }
 
+/// `FileWalker` is a struct that encapsulates the functionality of walking the file system.
+///
+/// It uses the `ignore::Walk` struct from the `ignore` crate to perform the file system walk.
+/// Iteration over the `Walker` struct yields `Result<ignore::DirEntry>` instances that include
+/// file entries only.
+///
+/// # Fields
+///
+/// * `walker`: An `ignore::Walk` instance that performs the file system walk.
+///
+/// # Usage
+///
+/// An instance of `FileWalker` is created by calling the `new` function and passing in a reference
+/// to an `Args` struct that contains the command line arguments. The `FileWalker` instance is then
+/// used to walk the file system and perform operations on each file.
+///
+/// # Examples
+///
+/// ```
+/// use clap::Parser;
+///
+/// use siz::args::Args;
+/// use siz::walk::FileWalker;
+///
+/// let args = Args::parse_from(vec!["siz", "."]);
+/// let walker = FileWalker::new(&args).unwrap();
+/// ```
 pub struct FileWalker {
     walker: ignore::Walk,
 }
 
 impl FileWalker {
+    /// Constructs a new `FileWalker` instance.
+    ///
+    /// This method takes a reference to an `Args` struct that contains the command line arguments.
+    ///
+    /// # Parameters
+    ///
+    /// * `args`: A reference to an `Args` struct that contains the command line arguments.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` that contains a `FileWalker` instance if the method succeeds, or an error if the method fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use clap::Parser;
+    ///
+    /// use siz::args::Args;
+    /// use siz::walk::FileWalker;
+    ///
+    /// let args = Args::parse_from(vec!["siz", "."]);
+    /// let walker = FileWalker::new(&args).unwrap();
+    /// ```
     pub fn new(args: &Args) -> Result<Self> {
         let walker = Walker::new(args)?;
         Ok(walker.into())
@@ -124,11 +224,59 @@ impl From<Walker> for FileWalker {
     }
 }
 
+/// `ParallelWalker` is a struct that encapsulates the functionality of walking the file system in parallel.
+///
+/// It uses the `ignore::WalkParallel` struct from the `ignore` crate to perform the parallel file system walk.
+///
+/// # Fields
+///
+/// * `walker`: An `ignore::WalkParallel` instance that performs the parallel file system walk.
+///
+/// # Usage
+///
+/// An instance of `ParallelWalker` is created by calling the `new` function and passing in a reference to
+/// an `Args` struct that contains the command line arguments. The `ParallelWalker` instance is then used
+/// to walk the file system in parallel and perform operations on each file or directory.
+///
+/// # Examples
+///
+/// ```
+/// use clap::Parser;
+///
+/// use siz::args::Args;
+/// use siz::walk::ParallelWalker;
+///
+/// let args = Args::parse_from(vec!["siz", "--parallel", "."]);
+/// let walker = ParallelWalker::new(&args).unwrap();
+/// ```
 pub struct ParallelWalker {
     pub walker: ignore::WalkParallel,
 }
 
 impl ParallelWalker {
+    /// Constructs a new `ParallelWalker` instance.
+    ///
+    /// This method takes a reference to an `Args` struct that contains the command line arguments.
+    ///
+    /// # Parameters
+    ///
+    /// * `args`: A reference to an `Args` struct that contains the command line arguments.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` that contains a `ParallelWalker` instance if the method succeeds, or an error if the method fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use clap::Parser;
+    ///
+    /// use siz::args::Args;
+    /// use siz::walk::ParallelWalker;
+    ///
+    /// let args = Args::parse_from(vec!["siz", "--parallel", "."]);
+    /// let walker = ParallelWalker::new(&args).unwrap();
+    /// ```
     pub fn new(args: &Args) -> Result<Self> {
         // we unwrap Option here because we know it is Some(PathBuf) from
         // the arg parsing logic in main.rs
@@ -180,6 +328,38 @@ impl ParallelWalker {
         })
     }
 
+    /// Prints the file sizes and file paths in a parallel file system walk with a `ParallelWalker`
+    /// instance to the standard output stream.
+    ///
+    /// This method takes a reference to an `Args` struct that contains the command line
+    /// arguments, and two closures that format file sizes in metric and binary units.
+    ///
+    /// # Parameters
+    ///
+    /// * `args`: A reference to an `Args` struct that contains the command line arguments.
+    /// * `metric_size_formatter`: A closure that formats a file size in SI metric units (powers of 1000).
+    /// * `binary_size_formatter`: A closure that formats a file size in binary units (powers of 1024).
+    ///
+    /// # Returns
+    ///
+    /// A `Result` that is `Ok` if the method succeeds, or an error if the method fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use clap::Parser;
+    ///
+    /// use siz::args::Args;
+    /// use siz::format::{build_binary_size_formatter, build_metric_size_formatter};
+    /// use siz::walk::ParallelWalker;
+    ///
+    /// let args = Args::parse_from(vec!["siz", "--parallel", "."]);
+    /// let walker = ParallelWalker::new(&args).unwrap();
+    /// let msf = build_metric_size_formatter();
+    /// let bsf = build_binary_size_formatter();
+    /// // print the file sizes in a non-deterministic order with a parallel walker
+    /// walker.print_files(&args, msf, bsf).unwrap();
+    /// ```
     pub fn print_files(
         self,
         args: &Args,

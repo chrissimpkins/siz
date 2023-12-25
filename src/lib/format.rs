@@ -1,7 +1,7 @@
 //! This module provides functions for formatting the output.
 use humansize::{make_format, BINARY, DECIMAL};
 
-/// Returns a closure that formats a file size in SI metric units (powers of 1000).
+/// Returns a closure that formats a file size in SI metric units.
 ///
 /// The returned closure takes a file size in bytes as an argument and returns a
 /// string that represents the file size in a human-readable SI metric format.
@@ -19,7 +19,7 @@ pub fn build_metric_size_formatter() -> impl Fn(u64) -> String {
     make_format(DECIMAL)
 }
 
-/// Returns a closure that formats a file size in binary units (powers of 1024).
+/// Returns a closure that formats a file size in binary units.
 ///
 /// The returned closure takes a file size in bytes as an argument and returns a
 /// string that represents the file size in a human-readable binary format.

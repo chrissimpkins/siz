@@ -337,8 +337,8 @@ impl ParallelWalker {
     /// # Parameters
     ///
     /// * `args`: A reference to an `Args` struct that contains the command line arguments.
-    /// * `metric_size_formatter`: A closure that formats a file size in SI metric units (powers of 1000).
-    /// * `binary_size_formatter`: A closure that formats a file size in binary units (powers of 1024).
+    /// * `metric_size_formatter`: A closure that formats a file size in SI metric units.
+    /// * `binary_size_formatter`: A closure that formats a file size in binary units.
     ///
     /// # Returns
     ///

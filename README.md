@@ -88,7 +88,7 @@ Use the same command to install updated crates.io release versions.
 
 ### Cargo install (source repository)
 
-Install a Rust toolchain on your system, and then use the cargo package manager to install the `siz` executable from the main branch of this source repository with:
+[Install a Rust toolchain on your system](https://www.rust-lang.org/tools/install), and then use the cargo package manager to install the `siz` executable from the main branch of this source repository with:
 
 ```text
 cargo install --git https://github.com/chrissimpkins/siz.git

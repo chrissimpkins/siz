@@ -40,3 +40,14 @@ tempfile = "3.2.0"
 [[bench]]
 name = "siz_benches"
 harness = false
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "fat"
+debug = "none"
+strip = "symbols"
+debug-assertions = false
+overflow-checks = false
+panic = "abort"
+incremental = false

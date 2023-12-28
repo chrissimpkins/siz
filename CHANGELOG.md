@@ -3,6 +3,7 @@
 ## v0.3.0
 
 - add a custom release profile with definitions for codegen-units=1, fat LTO, and binary stripping. This significantly reduces the size of the executable binary.
+- dev-dependency update: tempfile 3.8.1 to 3.9.0
 
 ## v0.2.0
 

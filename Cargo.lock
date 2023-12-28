@@ -645,7 +645,7 @@ dependencies = [
 
 [[package]]
 name = "siz"
-version = "0.2.1-alpha.1"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "approx",

@@ -72,7 +72,7 @@ impl Walker {
             .max_depth(args.depth)
             .git_global(false)
             .git_exclude(false)
-            .follow_links(false);
+            .follow_links(args.follow);
 
         // sort by file path string
         if args.name {
@@ -288,7 +288,7 @@ impl ParallelWalker {
             .max_depth(args.depth)
             .git_global(false)
             .git_exclude(false)
-            .follow_links(false);
+            .follow_links(args.follow);
 
         // filter files on user-defined default types
         // Note: This is not compatible with the glob option defined below.

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.0
+
+- add a custom release profile with definitions for codegen-units=1, fat LTO, and binary stripping. This significantly reduces the size of the executable binary.
+
 ## v0.2.0
 
 - new feature: add optional built-in file type name alias filtering support with the `--type` (also `-t`) option

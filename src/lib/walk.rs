@@ -975,4 +975,35 @@ mod tests {
 
         Ok(())
     }
+
+    #[cfg(unix)]
+    #[test]
+    fn test_walker_symbolic_links() -> Result<()> {
+        use std::os::unix::fs::symlink;
+
+        let td = tmpdir();
+        let td_path = td.path().to_str().unwrap();
+
+        mkdir_on_path(td.path().join("x/y"));
+        symlink(td.path().join("x/y"), td.path().join("z"))?;
+        write_file(td.path().join("x/y/test.txt"), "");
+
+        let args_no_sym = Args::parse_from(vec!["siz", td_path]);
+        let args_sym = Args::parse_from(vec!["siz", "--follow", td_path]);
+
+        // test sequential without symbolic link follow
+        assert_file_paths_sequential_sorted(td.path(), &args_no_sym, &["x/y/test.txt"])?;
+        // test sequential with symbolic link follow
+        assert_file_paths_sequential_sorted(td.path(), &args_sym, &["x/y/test.txt", "z/test.txt"])?;
+        // test parallel without symbolic link follow
+        assert_paths_parallel_sorted(td.path(), &args_no_sym, &["x", "x/y", "x/y/test.txt", "z"])?;
+        // test parallel with symbolic link follow
+        assert_paths_parallel_sorted(
+            td.path(),
+            &args_sym,
+            &["x", "x/y", "x/y/test.txt", "z", "z/test.txt"],
+        )?;
+
+        Ok(())
+    }
 }

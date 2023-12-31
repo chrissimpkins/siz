@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.0
+
+- new feature: add optional report of symbolic link follow file paths
+- new option: add `--follow` (or `-L`) command line option
+- dependency update: update clap 4.4.11 to 4.4.12
+
 ## v0.3.0
 
 - add a custom release profile with definitions for codegen-units=1, fat LTO, and binary stripping. This significantly reduces the size of the executable binary.

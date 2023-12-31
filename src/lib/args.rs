@@ -26,6 +26,8 @@ fn styles() -> Styles {
 ///
 /// * `depth`: An optional `usize` that represents the maximum directory traversal depth.
 ///
+/// * `follow`: A boolean that indicates whether to follow symbolic links.
+///
 /// * `glob`: An optional vector of `String` that represents path glob patterns to filter the output.
 ///
 /// * `hidden`: A boolean that indicates whether to show hidden dot files and dot directories.
@@ -65,6 +67,10 @@ pub struct Args {
     /// Maximum directory traversal depth
     #[arg(short, long, help_heading = "Filters")]
     pub depth: Option<usize>,
+
+    /// Follow symbolic links
+    #[arg(short = 'L', long, default_value_t = false, help_heading = "Filters")]
+    pub follow: bool,
 
     /// Filter the output by gitignore syntax glob patterns
     #[arg(
@@ -162,6 +168,7 @@ mod tests {
         assert_eq!(args.binary_units, false);
         assert_eq!(args.color, false);
         assert_eq!(args.depth, None);
+        assert_eq!(args.follow, false);
         assert_eq!(args.glob, None);
         assert_eq!(args.hidden, false);
         assert_eq!(args.highlow, false);
@@ -182,6 +189,7 @@ mod tests {
         assert_eq!(args.binary_units, true);
         assert_eq!(args.color, true);
         assert_eq!(args.depth, None);
+        assert_eq!(args.follow, false);
         assert_eq!(args.glob, None);
         assert_eq!(args.hidden, false);
         assert_eq!(args.highlow, false);

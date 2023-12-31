@@ -48,6 +48,7 @@
 - Format file sizes in human-readable SI metric block sizes (e.g., 10 MB)
 - Format file sizes in human-readable binary block sizes (e.g., 10 MiB)
 - Include hidden dotfiles and dot directory contents
+- Include symbolic link file paths
 - ANSI color support to distinguish directory parent paths from file paths
 - Parallel directory traversal if execution speed is essential and file size order is not
 

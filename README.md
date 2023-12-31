@@ -102,11 +102,11 @@ The installation provides a new `siz` executable on your system PATH.  `siz` acc
 
 ### Default file filtering behavior
 
-- Ignore all dotfiles (toggleable as of v0.1.0)
-- Ignore all recursive traversal paths under dot directories (toggleable as of v0.1.0)
+- Ignore all dotfiles (option available to toggle as of v0.1.0)
+- Ignore all recursive traversal paths under dot directories (option available to toggle as of v0.1.0)
 - Use .gitignore file glob pattern definitions to filter output *when executed on a git repository path*. By default, the tool respects .gitignore files in the parent directories of each file path.
 - Respect a local .ignore file. This file supports the same glob syntax as the .gitignore file. It allows you to define different sets of includes/excludes than those defined in .gitignore, and use this file-based ignore syntax outside of a git repository.
-- Will not follow symbolic links ([#17](https://github.com/chrissimpkins/siz/issues/17))
+- Will not follow symbolic links (option available to toggle as of v0.4.0)
 
 ## Changes
 

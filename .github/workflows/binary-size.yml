@@ -1,0 +1,81 @@
+name: Binary Size
+
+on:
+  push:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  binary-size-stable-linux:
+    runs-on: ubuntu-latest
+    name: Binary Size, Stable + Ubuntu
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release && cargo install siz
+      - name: Report binary size
+        run: siz target/release/siz
+  binary-size-beta-linux:
+    runs-on: ubuntu-latest
+    name: Binary Size, Beta + Ubuntu
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest beta Rust toolchain
+        uses: dtolnay/rust-toolchain@beta
+      - name: Build
+        run: cargo build --release && cargo install siz
+      - name: Report binary size
+        run: siz target/release/siz
+  binary-size-stable-macos:
+    runs-on: macos-latest
+    name: Binary Size, Stable + macOS
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release && cargo install siz
+      - name: Report binary size
+        run: siz target/release/siz
+  binary-size-beta-macos:
+    runs-on: macos-latest
+    name: Binary Size, Beta + macOS
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest beta Rust toolchain
+        uses: dtolnay/rust-toolchain@beta
+      - name: Build
+        run: cargo build --release && cargo install siz
+      - name: Report binary size
+        run: siz target/release/siz
+  binary-size-stable-windows:
+    runs-on: windows-latest
+    name: Binary Size, Stable + Windows
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release && cargo install siz
+      - name: Report binary size
+        run: siz target\release\siz.exe
+  binary-size-beta-windows:
+    runs-on: windows-latest
+    name: Binary Size, Beta + Windows
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+      - name: Install the latest beta Rust toolchain
+        uses: dtolnay/rust-toolchain@beta
+      - name: Build
+        run: cargo build --release && cargo install siz
+      - name: Report binary size
+        run: siz target\release\siz.exe

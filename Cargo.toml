@@ -24,7 +24,7 @@ name = "siz"
 path = "src/lib/lib.rs"
 
 [dependencies]
-anyhow = "1.0.79"
+anyhow = "1.0.80"
 clap = { version = "4.4", features = ["derive", "wrap_help"] }
 colored = "2.1"
 humansize = "2.0"

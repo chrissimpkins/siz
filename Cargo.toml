@@ -29,7 +29,7 @@ clap = { version = "4.4", features = ["derive", "wrap_help"] }
 colored = "2.1"
 humansize = "2.0"
 ignore = "0.4"
-rayon = "1.8"
+rayon = "1.10"
 
 [dev-dependencies]
 approx = "0.5"
